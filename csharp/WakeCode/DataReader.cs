@@ -9,7 +9,7 @@ namespace WakeCode
         //************************************************
         //  SUBROUTINE READ THE DATA !
         //------------------------------------------------
-        public void READ_DATA(SolverData solverData, GeneralData generalData)
+        public void Read(SolverData solverData, GeneralData generalData)
         {
             using (var fileStream = File.Open("initial_data.inp", FileMode.OpenOrCreate, FileAccess.Read))
             using (var streamReader = new StreamReader(fileStream))
@@ -21,31 +21,29 @@ namespace WakeCode
                 generalData.y = new double[generalData.JMAX];
                 generalData.vell_i = new double[generalData.IMAX,generalData.JMAX];
 
-                solverData.Dturb = ReadDouble(streamReader); // THE DIAMETER OF THE TURBIN
-                solverData.H = ReadDouble(streamReader); //  THE HEIGHT OF THE TURBINE
-                solverData.Ct = ReadDouble(streamReader); // TURBINE THRUST COEFFICIENT
-                solverData.Kwake = ReadDouble(streamReader); // wake expand scalar
-                solverData.Uhub = ReadDouble(streamReader);
-                    //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
-                generalData.N_TURB = ReadInt(streamReader); //THE NUMBER OF THE TURBINE
+                solverData.Dturb = ReadDouble(streamReader);    // THE DIAMETER OF THE TURBIN
+                solverData.H = ReadDouble(streamReader);        //  THE HEIGHT OF THE TURBINE
+                solverData.Ct = ReadDouble(streamReader);       // TURBINE THRUST COEFFICIENT
+                solverData.Kwake = ReadDouble(streamReader);    // wake expand scalar
+                solverData.Uhub = ReadDouble(streamReader);     //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
+                generalData.N_TURB = ReadInt(streamReader);     //THE NUMBER OF THE TURBINE
 
                 generalData.x_turb = new double[generalData.N_TURB];
                 generalData.y_turb = new double[generalData.N_TURB];
                 generalData.R_TURB = new double[generalData.N_TURB];
                 generalData.WPOWER = new double[generalData.N_TURB];
 
-                generalData.xc_turb = new System.Int32[generalData.N_TURB];
-                generalData.yc_turb = new System.Int32[generalData.N_TURB];
+                generalData.xc_turb = new Int32[generalData.N_TURB];
+                generalData.yc_turb = new Int32[generalData.N_TURB];
 
-                solverData.Rho = ReadDouble(streamReader); // THE DENSITY OF THE AIR 
-                solverData.dist = ReadDouble(streamReader); // the distance behind the turbine where the power is computed
-                generalData.ang = ReadDouble(streamReader);
-                    // rotational angle of the axis: vellocity has the same direction as Ox
+                solverData.Rho = ReadDouble(streamReader);      // THE DENSITY OF THE AIR 
+                solverData.dist = ReadDouble(streamReader);     // the distance behind the turbine where the power is computed
+                generalData.ang = ReadDouble(streamReader);     // rotational angle of the axis: vellocity has the same direction as Ox
                 ReadEmpty(streamReader);
                 ReadEmpty(streamReader);
                 for (var i = 0; i <= generalData.N_TURB - 1; i++)
                 {
-                    var t = ReadXY(streamReader); // pozition of the turbine
+                    var t = ReadXY(streamReader); // position of the turbine
                     generalData.x_turb[i] = t.Item1;
                     generalData.y_turb[i] = t.Item2;
                 }

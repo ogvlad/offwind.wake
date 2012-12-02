@@ -8,8 +8,6 @@ namespace WakeCode
 
         public void Run(GeneralData generalData, SolverData solverData)
         {
-            double ppp;
-
             //************************************************************************
             //ROTATE THE DOMAIN, AND THE X,Y COORDINATE OF THE TURBINE so that the wind to be in x direction
             //------------------------------------------------------------------
@@ -24,7 +22,7 @@ namespace WakeCode
 
             ORDER(generalData);
 
-            ppp = 5.0;
+            double ppp = 5.0;
 
             DOMAIN_PT(ref generalData.x, ref generalData.IMAX, ref generalData.dx, ref solverData.Dturb, ref generalData.x_turb, ref generalData.N_TURB, ref generalData.xmax, ref generalData.xmin, ref ppp);
 

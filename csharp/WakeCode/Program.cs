@@ -10,7 +10,7 @@
             var dataWriter = new DataWriter();
             var calc = new WakeCalc();
 
-            dataReader.READ_DATA(solverData, generalData);
+            dataReader.Read(solverData, generalData);
             calc.Run(generalData, solverData);
 
 
