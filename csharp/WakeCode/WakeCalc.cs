@@ -22,13 +22,8 @@ namespace WakeCode
 
             ORDER(generalData);
 
-            double ppp = 5.0;
-
-            DOMAIN_PT(ref generalData.x, ref generalData.IMAX, ref generalData.dx, ref solverData.Dturb, ref generalData.x_turb, ref generalData.N_TURB, ref generalData.xmax, ref generalData.xmin, ref ppp);
-
-            ppp = 2.0;
-
-            DOMAIN_PT(ref generalData.y, ref generalData.JMAX, ref generalData.dy, ref solverData.Dturb, ref generalData.y_turb, ref generalData.N_TURB, ref generalData.ymax, ref generalData.ymin, ref ppp);
+            DOMAIN_PT(ref generalData.x, ref generalData.IMAX, ref generalData.dx, ref solverData.Dturb, ref generalData.x_turb, ref generalData.N_TURB, ref generalData.xmax, ref generalData.xmin, 5.0);
+            DOMAIN_PT(ref generalData.y, ref generalData.JMAX, ref generalData.dy, ref solverData.Dturb, ref generalData.y_turb, ref generalData.N_TURB, ref generalData.ymax, ref generalData.ymin, 2.0);
             Turb_centr_coord(ref generalData.N_TURB, ref generalData.IMAX, ref generalData.x, ref generalData.x_turb, ref generalData.xc_turb);
             Turb_centr_coord(ref generalData.N_TURB, ref generalData.JMAX, ref generalData.y, ref generalData.y_turb, ref generalData.yc_turb);
             COMPUTE_VELL(solverData, generalData);
@@ -41,18 +36,17 @@ namespace WakeCode
         /// <param name="generalData"></param>
         private void ROTATE_coord(GeneralData generalData)
         {
-            int i;
             var XX_TURB = new double[generalData.N_TURB];
             var YY_TURB = new double[generalData.N_TURB];
             double ang1;
             ang1 = generalData.ang * pi / 180;
-            for (i = 0; i <= generalData.N_TURB - 1; i++)
+            for (var i = 0; i <= generalData.N_TURB - 1; i++)
             {
                 XX_TURB[i] = generalData.x_turb[i] * Math.Cos(ang1) - generalData.y_turb[i] * Math.Sin(ang1);
                 YY_TURB[i] = generalData.x_turb[i] * Math.Sin(ang1) + generalData.y_turb[i] * Math.Cos(ang1);
             }
 
-            for (i = 0; i <= generalData.N_TURB - 1; i++)
+            for (var i = 0; i <= generalData.N_TURB - 1; i++)
             {
                 generalData.x_turb[i] = XX_TURB[i];
                 generalData.y_turb[i] = YY_TURB[i];
@@ -72,13 +66,11 @@ namespace WakeCode
         /// <param name="XXMAX"></param>
         /// <param name="XXMIN"></param>
         /// <param name="pppoint"></param>
-        private void DOMAIN_PT(ref double[] XX, ref System.Int32 IIMAX, ref double DDX, ref double DDtur, ref double[] XX_TURB, ref System.Int32 NN_TURB, ref double XXMAX, ref double XXMIN, ref double pppoint)
+        private void DOMAIN_PT(ref double[] XX, ref System.Int32 IIMAX, ref double DDX, ref double DDtur, ref double[] XX_TURB, ref System.Int32 NN_TURB, ref double XXMAX, ref double XXMIN, double pppoint)
         {
-            int i;
-
             XXMAX = XX_TURB[0];
             XXMIN = XX_TURB[0];
-            for (i = 1; i <= NN_TURB - 1; i++)
+            for (var i = 1; i <= NN_TURB - 1; i++)
             {
                 if (XX_TURB[i] > XXMAX)
                 {
@@ -95,11 +87,10 @@ namespace WakeCode
 
             XX[0] = XXMIN;
             DDX = (XXMAX - XXMIN) / (IIMAX - 1);
-            for (i = 1; i <= IIMAX - 1; i++)
+            for (var i = 1; i <= IIMAX - 1; i++)
             {
                 XX[i] = XX[i - 1] + DDX;
             }
-            pppoint = 0.0;
         }
 
         /// <summary>
@@ -113,12 +104,8 @@ namespace WakeCode
         /// <param name="xxc_turb"></param>
         private void Turb_centr_coord(ref System.Int32 nn, ref System.Int32 iimax, ref double[] xx, ref double[] xx_turb, ref System.Int32[] xxc_turb)
         {
-            System.Int32 i;
-            System.Int32 ii;
-
-            for (i = 0; i <= nn - 1; i++)
-            {
-                for (ii = 0; ii <= iimax - 2; ii++)
+            for (var i = 0; i <= nn - 1; i++)
+                for (var ii = 0; ii <= iimax - 2; ii++)
                 {
                     if (xx[ii] <= xx_turb[i] && xx_turb[i] < xx[ii + 1])
                     {
@@ -126,7 +113,6 @@ namespace WakeCode
                         break;
                     }
                 }
-            }
         }
 
         /// <summary>
@@ -135,15 +121,11 @@ namespace WakeCode
         /// <param name="generalData"></param>
         private void ORDER(GeneralData generalData)
         {
-            int i;
-            int j;
-            int k;
             double aa;
             double bb;
 
-            for (i = 1; i <= generalData.N_TURB - 1; i++)
-            {
-                for (j = 0; j <= generalData.N_TURB - i - 1; j++)
+            for (var i = 1; i <= generalData.N_TURB - 1; i++)
+                for (var j = 0; j <= generalData.N_TURB - i - 1; j++)
                 {
                     if (generalData.x_turb[j] > generalData.x_turb[j + 1])
                     {
@@ -155,12 +137,10 @@ namespace WakeCode
                         generalData.y_turb[j + 1] = bb;
                     }
                 }
-            }
 
-            //for (j=1; j <= N_turb; j++) {
-            for (i = 0; i <= generalData.N_TURB - 1; i++)
+            for (var i = 0; i <= generalData.N_TURB - 1; i++)
             {
-                for (k = i + 1; k <= generalData.N_TURB - 1; k++)
+                for (var k = i + 1; k <= generalData.N_TURB - 1; k++)
                 {
                     if (generalData.x_turb[i] == generalData.x_turb[k])
                     {
@@ -173,8 +153,6 @@ namespace WakeCode
                     }
                 }
             }
-            //}
-
         }
 
         private int INT(double doubleValue)
