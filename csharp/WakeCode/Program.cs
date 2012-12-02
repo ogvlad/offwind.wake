@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 
 namespace WakeCode
@@ -7,11 +8,10 @@ namespace WakeCode
     {
         private static void Main(string[] args)
         {
-            var dir = ".\\";
+            var dir = "";
             if (args.Length > 0)
             {
                 dir = args[0];
-                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             }
             var solverData = new SolverData();
             var generalData = new GeneralData();

@@ -16,18 +16,18 @@ namespace WakeCode
             using (var fileStream = File.Open(Path.Combine(dir, "FLOW.xyz"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
             {
-                WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
-                for (var j = 1; j <= generalData.JMAX; j++)
+                WRITE(streamWriter, generalData.GridPointsX, generalData.GridPointsY);
+                for (var j = 1; j <= generalData.GridPointsY; j++)
                 {
-                    for (var i = 0; i <= generalData.IMAX - 1; i++)
+                    for (var i = 0; i <= generalData.GridPointsX - 1; i++)
                     {
                         WRITE(streamWriter, generalData.x[i]);
                     }
                 }
                 WRITE(streamWriter);
-                for (var j = 0; j <= generalData.JMAX - 1; j++)
+                for (var j = 0; j <= generalData.GridPointsY - 1; j++)
                 {
-                    for (var i = 1; i <= generalData.IMAX; i++)
+                    for (var i = 1; i <= generalData.GridPointsX; i++)
                     {
                         WRITE(streamWriter, generalData.y[j]);
                     }
@@ -37,32 +37,32 @@ namespace WakeCode
             using (var fileStream = File.Open(Path.Combine(dir, "FLOW.q"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
             {
-                WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
+                WRITE(streamWriter, generalData.GridPointsX, generalData.GridPointsY);
                 WRITE(streamWriter, "0.1   ", "  10  ", "  10000  ", "  0.1 ");
-                for (var j = 1; j <= generalData.JMAX; j++)
+                for (var j = 1; j <= generalData.GridPointsY; j++)
                 {
-                    for (var i = 1; i <= generalData.IMAX; i++)
+                    for (var i = 1; i <= generalData.GridPointsX; i++)
                     {
-                        WRITE(streamWriter, solverData.Rho);
+                        WRITE(streamWriter, solverData.AirDensity);
                     }
                 }
-                for (var j = 0; j <= generalData.JMAX - 1; j++)
+                for (var j = 0; j <= generalData.GridPointsY - 1; j++)
                 {
-                    for (var i = 0; i <= generalData.IMAX - 1; i++)
+                    for (var i = 0; i <= generalData.GridPointsX - 1; i++)
                     {
-                        WRITE(streamWriter, solverData.Rho*generalData.vell_i[i, j]);
+                        WRITE(streamWriter, solverData.AirDensity*generalData.vell_i[i, j]);
                     }
                 }
-                for (var j = 1; j <= generalData.JMAX; j++)
+                for (var j = 1; j <= generalData.GridPointsY; j++)
                 {
-                    for (var i = 1; i <= generalData.IMAX; i++)
+                    for (var i = 1; i <= generalData.GridPointsX; i++)
                     {
                         WRITE(streamWriter, 0);
                     }
                 }
-                for (var j = 1; j <= generalData.JMAX; j++)
+                for (var j = 1; j <= generalData.GridPointsY; j++)
                 {
-                    for (var i = 1; i <= generalData.IMAX; i++)
+                    for (var i = 1; i <= generalData.GridPointsX; i++)
                     {
                         WRITE(streamWriter, 0);
                     }
@@ -82,7 +82,7 @@ namespace WakeCode
             {
                 WRITE(streamWriter, "   Turbine Number(m)   ", "Turbine Location-X(m)   ",
                       "Turbine Location-Y(m)    ", "POWER(W)");
-                for (var i = 1; i <= generalData.N_TURB; i++)
+                for (var i = 1; i <= generalData.TurbinesAmount; i++)
                 {
                     WRITE(streamWriter, i, generalData.x_turb[i - 1], generalData.y_turb[i - 1],
                           generalData.WPOWER[i - 1]);

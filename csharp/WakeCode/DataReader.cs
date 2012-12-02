@@ -14,34 +14,34 @@ namespace WakeCode
             using (var fileStream = File.Open(Path.Combine(dir, "initial_data.inp"), FileMode.OpenOrCreate, FileAccess.Read))
             using (var streamReader = new StreamReader(fileStream))
             {
-                generalData.IMAX = ReadInt(streamReader); // The number of grid points in x direction
-                generalData.JMAX = ReadInt(streamReader); // The number of the grid points in Y direction
+                generalData.GridPointsX = ReadInt(streamReader); // The number of grid points in x direction
+                generalData.GridPointsY = ReadInt(streamReader); // The number of the grid points in Y direction
 
-                generalData.x = new double[generalData.IMAX];
-                generalData.y = new double[generalData.JMAX];
-                generalData.vell_i = new double[generalData.IMAX,generalData.JMAX];
+                generalData.x = new double[generalData.GridPointsX];
+                generalData.y = new double[generalData.GridPointsY];
+                generalData.vell_i = new double[generalData.GridPointsX,generalData.GridPointsY];
 
-                solverData.Dturb = ReadDouble(streamReader);    // THE DIAMETER OF THE TURBIN
-                solverData.H = ReadDouble(streamReader);        //  THE HEIGHT OF THE TURBINE
-                solverData.Ct = ReadDouble(streamReader);       // TURBINE THRUST COEFFICIENT
-                solverData.Kwake = ReadDouble(streamReader);    // wake expand scalar
-                solverData.Uhub = ReadDouble(streamReader);     //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
-                generalData.N_TURB = ReadInt(streamReader);     //THE NUMBER OF THE TURBINE
+                solverData.TurbineDiameter = ReadDouble(streamReader);    // THE DIAMETER OF THE TURBIN
+                solverData.TurbineHeight = ReadDouble(streamReader);        //  THE HEIGHT OF THE TURBINE
+                solverData.TurbineThrust = ReadDouble(streamReader);       // TURBINE THRUST COEFFICIENT
+                solverData.WakeDecay = ReadDouble(streamReader);    // wake expand scalar
+                solverData.VelocityAtHub = ReadDouble(streamReader);     //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
+                generalData.TurbinesAmount = ReadInt(streamReader);     //THE NUMBER OF THE TURBINE
 
-                generalData.x_turb = new double[generalData.N_TURB];
-                generalData.y_turb = new double[generalData.N_TURB];
-                generalData.R_TURB = new double[generalData.N_TURB];
-                generalData.WPOWER = new double[generalData.N_TURB];
+                generalData.x_turb = new double[generalData.TurbinesAmount];
+                generalData.y_turb = new double[generalData.TurbinesAmount];
+                generalData.R_TURB = new double[generalData.TurbinesAmount];
+                generalData.WPOWER = new double[generalData.TurbinesAmount];
 
-                generalData.xc_turb = new Int32[generalData.N_TURB];
-                generalData.yc_turb = new Int32[generalData.N_TURB];
+                generalData.xc_turb = new Int32[generalData.TurbinesAmount];
+                generalData.yc_turb = new Int32[generalData.TurbinesAmount];
 
-                solverData.Rho = ReadDouble(streamReader);      // THE DENSITY OF THE AIR 
-                solverData.dist = ReadDouble(streamReader);     // the distance behind the turbine where the power is computed
-                generalData.ang = ReadDouble(streamReader);     // rotational angle of the axis: vellocity has the same direction as Ox
+                solverData.AirDensity = ReadDouble(streamReader);      // THE DENSITY OF THE AIR 
+                solverData.PowerDistance = ReadDouble(streamReader);     // the distance behind the turbine where the power is computed
+                generalData.RotationAngle = ReadDouble(streamReader);     // rotational angle of the axis: vellocity has the same direction as Ox
                 ReadEmpty(streamReader);
                 ReadEmpty(streamReader);
-                for (var i = 0; i <= generalData.N_TURB - 1; i++)
+                for (var i = 0; i <= generalData.TurbinesAmount - 1; i++)
                 {
                     var t = ReadXY(streamReader); // position of the turbine
                     generalData.x_turb[i] = t.Item1;

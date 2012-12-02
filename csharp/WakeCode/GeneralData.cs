@@ -4,9 +4,9 @@ namespace WakeCode
 {
     public class GeneralData
     {
-        public System.Int32 N_TURB;
-        public System.Int32 IMAX;
-        public System.Int32 JMAX;
+        public System.Int32 TurbinesAmount;
+        public System.Int32 GridPointsX;
+        public System.Int32 GridPointsY;
         public double dx;
         public double dy;
         public double pi;
@@ -14,7 +14,7 @@ namespace WakeCode
         public double ymax;
         public double ymin;
         public double xmin;
-        public double ang;
+        public double RotationAngle;
 
         public double[] x;
         public double[] y;
