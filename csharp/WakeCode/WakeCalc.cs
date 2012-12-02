@@ -35,10 +35,9 @@ namespace WakeCode
             Turb_centr_coord(ref generalData.N_TURB, ref generalData.IMAX, ref generalData.x, ref generalData.x_turb, ref generalData.xc_turb);
             Turb_centr_coord(ref generalData.N_TURB, ref generalData.JMAX, ref generalData.y, ref generalData.y_turb, ref generalData.yc_turb);
             COMPUTE_VELL(solverData, generalData);
+            COMPUTE_WPower(solverData, generalData);
 
             WRITE_DATA(solverData, generalData);
-
-            COMPUTE_WPower(solverData, generalData);
             WRITE_DATA_power(generalData);
         }
 
