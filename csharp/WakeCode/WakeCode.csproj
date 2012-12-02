@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CalcData.cs" />
     <Compile Include="DataReader.cs" />
     <Compile Include="DataWriter.cs" />
     <Compile Include="GeneralData.cs" />

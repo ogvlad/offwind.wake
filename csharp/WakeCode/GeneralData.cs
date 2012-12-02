@@ -1,5 +1,3 @@
-using System;
-
 namespace WakeCode
 {
     public class GeneralData
@@ -16,14 +14,7 @@ namespace WakeCode
         public double xmin;
         public double RotationAngle;
 
-        public double[] x;
-        public double[] y;
-        public double[,] vell_i;
         public double[] x_turb;     // location of the turbine
         public double[] y_turb;     // location of the turbine
-        public double[] R_TURB;     // location of the turbine
-        public double[] WPOWER;     // location of the turbine
-        public Int32[] xc_turb;
-        public Int32[] yc_turb;
     }
 }

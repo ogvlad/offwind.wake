@@ -11,7 +11,9 @@ namespace WakeCode
         /// </summary>
         /// <param name="solverData"></param>
         /// <param name="generalData"></param>
-        public void Write(SolverData solverData, GeneralData generalData, string dir)
+        /// <param name="calcData"> </param>
+        /// <param name="dir"> </param>
+        public void Write(SolverData solverData, GeneralData generalData, CalcData calcData, string dir)
         {
             using (var fileStream = File.Open(Path.Combine(dir, "FLOW.xyz"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
@@ -21,7 +23,7 @@ namespace WakeCode
                 {
                     for (var i = 0; i <= generalData.GridPointsX - 1; i++)
                     {
-                        WRITE(streamWriter, generalData.x[i]);
+                        WRITE(streamWriter, calcData.x[i]);
                     }
                 }
                 WRITE(streamWriter);
@@ -29,7 +31,7 @@ namespace WakeCode
                 {
                     for (var i = 1; i <= generalData.GridPointsX; i++)
                     {
-                        WRITE(streamWriter, generalData.y[j]);
+                        WRITE(streamWriter, calcData.y[j]);
                     }
                 }
             }
@@ -50,7 +52,7 @@ namespace WakeCode
                 {
                     for (var i = 0; i <= generalData.GridPointsX - 1; i++)
                     {
-                        WRITE(streamWriter, solverData.AirDensity*generalData.vell_i[i, j]);
+                        WRITE(streamWriter, solverData.AirDensity * calcData.vell_i[i, j]);
                     }
                 }
                 for (var j = 1; j <= generalData.GridPointsY; j++)
@@ -74,8 +76,9 @@ namespace WakeCode
         /// SUBROUTINE  _DATA Power
         /// </summary>
         /// <param name="generalData"></param>
+        /// <param name="calcData"> </param>
         /// <param name="dir"> </param>
-        public void WritePower(GeneralData generalData, string dir)
+        public void WritePower(GeneralData generalData, CalcData calcData, string dir)
         {
             using (var fileStream = File.Open(Path.Combine(dir, "Power_Output.dat"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
@@ -85,7 +88,7 @@ namespace WakeCode
                 for (var i = 1; i <= generalData.TurbinesAmount; i++)
                 {
                     WRITE(streamWriter, i, generalData.x_turb[i - 1], generalData.y_turb[i - 1],
-                          generalData.WPOWER[i - 1]);
+                          calcData.WPOWER[i - 1]);
                 }
             }
         }

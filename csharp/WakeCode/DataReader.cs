@@ -17,10 +17,6 @@ namespace WakeCode
                 generalData.GridPointsX = ReadInt(streamReader); // The number of grid points in x direction
                 generalData.GridPointsY = ReadInt(streamReader); // The number of the grid points in Y direction
 
-                generalData.x = new double[generalData.GridPointsX];
-                generalData.y = new double[generalData.GridPointsY];
-                generalData.vell_i = new double[generalData.GridPointsX,generalData.GridPointsY];
-
                 solverData.TurbineDiameter = ReadDouble(streamReader);    // THE DIAMETER OF THE TURBIN
                 solverData.TurbineHeight = ReadDouble(streamReader);        //  THE HEIGHT OF THE TURBINE
                 solverData.TurbineThrust = ReadDouble(streamReader);       // TURBINE THRUST COEFFICIENT
@@ -30,11 +26,6 @@ namespace WakeCode
 
                 generalData.x_turb = new double[generalData.TurbinesAmount];
                 generalData.y_turb = new double[generalData.TurbinesAmount];
-                generalData.R_TURB = new double[generalData.TurbinesAmount];
-                generalData.WPOWER = new double[generalData.TurbinesAmount];
-
-                generalData.xc_turb = new Int32[generalData.TurbinesAmount];
-                generalData.yc_turb = new Int32[generalData.TurbinesAmount];
 
                 solverData.AirDensity = ReadDouble(streamReader);      // THE DENSITY OF THE AIR 
                 solverData.PowerDistance = ReadDouble(streamReader);     // the distance behind the turbine where the power is computed
