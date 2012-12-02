@@ -11,9 +11,9 @@ namespace WakeCode
         /// </summary>
         /// <param name="solverData"></param>
         /// <param name="generalData"></param>
-        public void Write(SolverData solverData, GeneralData generalData)
+        public void Write(SolverData solverData, GeneralData generalData, string dir)
         {
-            using (var fileStream = File.Open("FLOW.xyz", FileMode.OpenOrCreate, FileAccess.Write))
+            using (var fileStream = File.Open(Path.Combine(dir, "FLOW.xyz"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
             {
                 WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
@@ -34,7 +34,7 @@ namespace WakeCode
                 }
             }
 
-            using (var fileStream = File.Open("FLOW.q", FileMode.OpenOrCreate, FileAccess.Write))
+            using (var fileStream = File.Open(Path.Combine(dir, "FLOW.q"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
             {
                 WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
@@ -74,9 +74,10 @@ namespace WakeCode
         /// SUBROUTINE  _DATA Power
         /// </summary>
         /// <param name="generalData"></param>
-        public void WritePower(GeneralData generalData)
+        /// <param name="dir"> </param>
+        public void WritePower(GeneralData generalData, string dir)
         {
-            using (var fileStream = File.Open("Power_Output.dat", FileMode.OpenOrCreate, FileAccess.Write))
+            using (var fileStream = File.Open(Path.Combine(dir, "Power_Output.dat"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
             {
                 WRITE(streamWriter, "   Turbine Number(m)   ", "Turbine Location-X(m)   ",

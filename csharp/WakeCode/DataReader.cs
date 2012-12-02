@@ -9,9 +9,9 @@ namespace WakeCode
         //************************************************
         //  SUBROUTINE READ THE DATA !
         //------------------------------------------------
-        public void Read(SolverData solverData, GeneralData generalData)
+        public void Read(SolverData solverData, GeneralData generalData, string dir)
         {
-            using (var fileStream = File.Open("initial_data.inp", FileMode.OpenOrCreate, FileAccess.Read))
+            using (var fileStream = File.Open(Path.Combine(dir, "initial_data.inp"), FileMode.OpenOrCreate, FileAccess.Read))
             using (var streamReader = new StreamReader(fileStream))
             {
                 generalData.IMAX = ReadInt(streamReader); // The number of grid points in x direction

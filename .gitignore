@@ -4,3 +4,4 @@
 /csharp/WakeCode/bin
 /csharp/*.user
 /csharp/WakeCode/*.bak
+/csharp/WakeCode/*.user
