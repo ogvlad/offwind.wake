@@ -13,14 +13,13 @@ namespace WakeCode
             {
                 dir = args[0];
             }
-            var solverData = new SolverData();
             var generalData = new GeneralData();
             var calcData = new CalcData();
             var dataReader = new DataReader();
             var dataWriter = new DataWriter();
             var calc = new WakeCalc();
 
-            dataReader.Read(solverData, generalData, dir);
+            dataReader.Read(generalData, dir);
 
 
             calcData.x = new double[generalData.GridPointsX];
@@ -32,9 +31,9 @@ namespace WakeCode
             calcData.xc_turb = new Int32[generalData.TurbinesAmount];
             calcData.yc_turb = new Int32[generalData.TurbinesAmount];
 
-            calc.Run(generalData, solverData, calcData);
+            calc.Run(generalData, calcData);
 
-            dataWriter.Write(solverData, generalData, calcData, dir);
+            dataWriter.Write(generalData, calcData, dir);
             dataWriter.WritePower(generalData, calcData, dir);
         }
     }

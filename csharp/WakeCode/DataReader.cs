@@ -9,7 +9,7 @@ namespace WakeCode
         //************************************************
         //  SUBROUTINE READ THE DATA !
         //------------------------------------------------
-        public void Read(SolverData solverData, GeneralData generalData, string dir)
+        public void Read(GeneralData generalData, string dir)
         {
             using (var fileStream = File.Open(Path.Combine(dir, "initial_data.inp"), FileMode.OpenOrCreate, FileAccess.Read))
             using (var streamReader = new StreamReader(fileStream))
@@ -17,18 +17,18 @@ namespace WakeCode
                 generalData.GridPointsX = ReadInt(streamReader); // The number of grid points in x direction
                 generalData.GridPointsY = ReadInt(streamReader); // The number of the grid points in Y direction
 
-                solverData.TurbineDiameter = ReadDouble(streamReader);    // THE DIAMETER OF THE TURBIN
-                solverData.TurbineHeight = ReadDouble(streamReader);        //  THE HEIGHT OF THE TURBINE
-                solverData.TurbineThrust = ReadDouble(streamReader);       // TURBINE THRUST COEFFICIENT
-                solverData.WakeDecay = ReadDouble(streamReader);    // wake expand scalar
-                solverData.VelocityAtHub = ReadDouble(streamReader);     //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
+                generalData.TurbineDiameter = ReadDouble(streamReader);    // THE DIAMETER OF THE TURBIN
+                generalData.TurbineHeight = ReadDouble(streamReader);        //  THE HEIGHT OF THE TURBINE
+                generalData.TurbineThrust = ReadDouble(streamReader);       // TURBINE THRUST COEFFICIENT
+                generalData.WakeDecay = ReadDouble(streamReader);    // wake expand scalar
+                generalData.VelocityAtHub = ReadDouble(streamReader);     //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
                 generalData.TurbinesAmount = ReadInt(streamReader);     //THE NUMBER OF THE TURBINE
 
                 generalData.x_turb = new double[generalData.TurbinesAmount];
                 generalData.y_turb = new double[generalData.TurbinesAmount];
 
-                solverData.AirDensity = ReadDouble(streamReader);      // THE DENSITY OF THE AIR 
-                solverData.PowerDistance = ReadDouble(streamReader);     // the distance behind the turbine where the power is computed
+                generalData.AirDensity = ReadDouble(streamReader);      // THE DENSITY OF THE AIR 
+                generalData.PowerDistance = ReadDouble(streamReader);     // the distance behind the turbine where the power is computed
                 generalData.RotationAngle = ReadDouble(streamReader);     // rotational angle of the axis: vellocity has the same direction as Ox
                 ReadEmpty(streamReader);
                 ReadEmpty(streamReader);

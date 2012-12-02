@@ -49,7 +49,6 @@
     <Compile Include="GeneralData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SolverData.cs" />
     <Compile Include="WakeCalc.cs" />
   </ItemGroup>
   <ItemGroup>

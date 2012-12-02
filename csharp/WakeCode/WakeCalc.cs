@@ -6,28 +6,28 @@ namespace WakeCode
     {
         private const double pi = 3.1415926535897;
 
-        public void Run(GeneralData generalData, SolverData solverData, CalcData calcData)
+        public void Run(GeneralData generalData, CalcData calcData)
         {
             //************************************************************************
             //ROTATE THE DOMAIN, AND THE X,Y COORDINATE OF THE TURBINE so that the wind to be in x direction
             //------------------------------------------------------------------
             ROTATE_coord(generalData);
-            if (solverData.TurbineThrust > 1)
+            if (generalData.TurbineThrust > 1)
             {
                 Console.WriteLine(" The value of the TurbineThrust should be less 1, hence TurbineThrust=0.3)");
-                solverData.TurbineThrust = 0.3;
+                generalData.TurbineThrust = 0.3;
             }
 
-            calcData.Cp = 0.5 * (1 + Math.Sqrt(1 - solverData.TurbineThrust)) * solverData.TurbineThrust;
+            calcData.Cp = 0.5 * (1 + Math.Sqrt(1 - generalData.TurbineThrust)) * generalData.TurbineThrust;
 
             ORDER(generalData);
 
-            DOMAIN_PT(ref calcData.x, ref generalData.GridPointsX, ref calcData.dx, ref solverData.TurbineDiameter, ref generalData.x_turb, ref generalData.TurbinesAmount, ref calcData.xmax, ref calcData.xmin, 5.0);
-            DOMAIN_PT(ref calcData.y, ref generalData.GridPointsY, ref calcData.dy, ref solverData.TurbineDiameter, ref generalData.y_turb, ref generalData.TurbinesAmount, ref calcData.ymax, ref calcData.ymin, 2.0);
+            DOMAIN_PT(ref calcData.x, ref generalData.GridPointsX, ref calcData.dx, ref generalData.TurbineDiameter, ref generalData.x_turb, ref generalData.TurbinesAmount, ref calcData.xmax, ref calcData.xmin, 5.0);
+            DOMAIN_PT(ref calcData.y, ref generalData.GridPointsY, ref calcData.dy, ref generalData.TurbineDiameter, ref generalData.y_turb, ref generalData.TurbinesAmount, ref calcData.ymax, ref calcData.ymin, 2.0);
             Turb_centr_coord(ref generalData.TurbinesAmount, ref generalData.GridPointsX, ref calcData.x, ref generalData.x_turb, ref calcData.xc_turb);
             Turb_centr_coord(ref generalData.TurbinesAmount, ref generalData.GridPointsY, ref calcData.y, ref generalData.y_turb, ref calcData.yc_turb);
-            COMPUTE_VELL(solverData, generalData, calcData);
-            COMPUTE_WPower(solverData, generalData, calcData);
+            COMPUTE_VELL(generalData, calcData);
+            COMPUTE_WPower(generalData, calcData);
         }
 
         /// <summary>
@@ -163,9 +163,9 @@ namespace WakeCode
         /// <summary>
         /// SUBROUTINE  _SHADOW AREA
         /// </summary>
-        /// <param name="solverData"></param>
         /// <param name="generalData"></param>
-        private void COMPUTE_VELL(SolverData solverData, GeneralData generalData, CalcData calcData)
+        /// <param name="generalData"></param>
+        private void COMPUTE_VELL(GeneralData generalData, CalcData calcData)
         {
             var SHADOW = new double[generalData.TurbinesAmount];
             double rr_max = 0;
@@ -174,12 +174,12 @@ namespace WakeCode
             for (var i = 0; i <= generalData.GridPointsX - 1; i++)
                 for (var j = 0; j <= generalData.GridPointsY - 1; j++)
                 {
-                    calcData.vell_i[i, j] = solverData.VelocityAtHub;
+                    calcData.vell_i[i, j] = generalData.VelocityAtHub;
                 }
 
-            double r0 = 0.5 * solverData.TurbineDiameter;
+            double r0 = 0.5 * generalData.TurbineDiameter;
 
-            int nk = 2 * (INT(solverData.TurbineDiameter / calcData.dy));
+            int nk = 2 * (INT(generalData.TurbineDiameter / calcData.dy));
             for (var k = 1; k <= generalData.TurbinesAmount; k++)
             {
                 int J = 0;
@@ -188,7 +188,7 @@ namespace WakeCode
 
                 for (var i = 1; i <= k - 1; i = i + 1) // calculate the influence of the turbine i over the turbine k
                 {
-                    double RR_I = r0 + solverData.WakeDecay * (calcData.x[calcData.xc_turb[k - 1] - 1] - calcData.x[calcData.xc_turb[i - 1] - 1]);
+                    double RR_I = r0 + generalData.WakeDecay * (calcData.x[calcData.xc_turb[k - 1] - 1] - calcData.x[calcData.xc_turb[i - 1] - 1]);
                     double DIJ = Math.Abs(generalData.y_turb[i - 1] - generalData.y_turb[k - 1]);
                     if (RR_I >= (r0 + DIJ) || DIJ <= calcData.dy)
                     {
@@ -220,7 +220,7 @@ namespace WakeCode
 
                 for (var ii = calcData.xc_turb[k - 1]; ii <= generalData.GridPointsX; ii++)
                 {
-                    double rrt = r0 + solverData.WakeDecay * (calcData.x[ii - 1] - calcData.x[calcData.xc_turb[k - 1] - 1]);
+                    double rrt = r0 + generalData.WakeDecay * (calcData.x[ii - 1] - calcData.x[calcData.xc_turb[k - 1] - 1]);
                     rr_max = Math.Max(rrt, rr_max);
                     int nj = (INT(rrt / calcData.dy));
                     int jj_min = Math.Max(1, calcData.yc_turb[k - 1] - nj);
@@ -228,18 +228,18 @@ namespace WakeCode
 
                     for (J = jj_min; J <= jj_max; J++)
                     {
-                        if (((-calcData.vell_i[ii - 1, J - 1] + solverData.VelocityAtHub) > 0) && (ii > calcData.xc_turb[k - 1] + nk))
+                        if (((-calcData.vell_i[ii - 1, J - 1] + generalData.VelocityAtHub) > 0) && (ii > calcData.xc_turb[k - 1] + nk))
                         {
                             double vv = calcData.vell_i[ii - 1, J - 1];
-                            calcData.vell_i[ii - 1, J - 1] = solverData.VelocityAtHub + solverData.VelocityAtHub * (Math.Sqrt(1 - solverData.TurbineThrust) - 1) * ((r0 * r0) / (rrt * rrt));
-                            calcData.vell_i[ii - 1, J - 1] = calcData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - solverData.TurbineThrust)) * SS);
+                            calcData.vell_i[ii - 1, J - 1] = generalData.VelocityAtHub + generalData.VelocityAtHub * (Math.Sqrt(1 - generalData.TurbineThrust) - 1) * ((r0 * r0) / (rrt * rrt));
+                            calcData.vell_i[ii - 1, J - 1] = calcData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - generalData.TurbineThrust)) * SS);
                             //vell_i(ii,j)=(vell_i(ii,j)+0.15*vv)/1.15;
                             calcData.vell_i[ii - 1, J - 1] = Math.Min(vv, calcData.vell_i[ii - 1, J - 1]);
                         }
                         else
                         {
-                            calcData.vell_i[ii - 1, J - 1] = solverData.VelocityAtHub + solverData.VelocityAtHub * (Math.Sqrt(1 - solverData.TurbineThrust) - 1) * (r0 / rrt) * (r0 / rrt);
-                            calcData.vell_i[ii - 1, J - 1] = calcData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - solverData.TurbineThrust)) * SS);
+                            calcData.vell_i[ii - 1, J - 1] = generalData.VelocityAtHub + generalData.VelocityAtHub * (Math.Sqrt(1 - generalData.TurbineThrust) - 1) * (r0 / rrt) * (r0 / rrt);
+                            calcData.vell_i[ii - 1, J - 1] = calcData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - generalData.TurbineThrust)) * SS);
                         }
                     }
                 }
@@ -249,18 +249,18 @@ namespace WakeCode
         /// <summary>
         /// SUBROUTINE  compute the power at the distance PowerDistance behind the WT
         /// </summary>
-        /// <param name="solverData"></param>
+        /// <param name="generalData"></param>
         /// <param name="generalData"></param>
         /// <param name="calcData"> </param>
-        private void COMPUTE_WPower(SolverData solverData, GeneralData generalData, CalcData calcData)
+        private void COMPUTE_WPower(GeneralData generalData, CalcData calcData)
         {
             var SHADOW = new double[generalData.TurbinesAmount];
             var v_power = new double[generalData.TurbinesAmount];
 
             double area = 0;
-            double r0 = 0.5 * solverData.TurbineDiameter;
+            double r0 = 0.5 * generalData.TurbineDiameter;
             double ss0 = (pi * r0 * r0);
-            var I = (int)Math.Truncate(solverData.PowerDistance / calcData.dx);
+            var I = (int)Math.Truncate(generalData.PowerDistance / calcData.dx);
             int nd = Math.Max(1, I);
 
             for (var k = 1; k <= generalData.TurbinesAmount; k++)
@@ -273,7 +273,7 @@ namespace WakeCode
                 double vv2 = 0.0;
                 for (var i = k - 1; i >= 1; i = i - 1) // calculate the influence of the turbine i over the turbine k
                 {
-                    double RR_I = r0 + solverData.WakeDecay * (calcData.x[nk - 1] - calcData.x[calcData.xc_turb[i - 1] - 1]);
+                    double RR_I = r0 + generalData.WakeDecay * (calcData.x[nk - 1] - calcData.x[calcData.xc_turb[i - 1] - 1]);
                     double DIJ = Math.Abs(generalData.y_turb[i - 1] - generalData.y_turb[k - 1]);
 
                     if (((DIJ) < (RR_I + r0)) && (RR_I <= (r0 + DIJ)))
@@ -331,7 +331,7 @@ namespace WakeCode
                 }
                 vv2 = (vv2 + vv1 * (ss0 - SS)) / ss0;
 
-                calcData.WPOWER[k - 1] = 0.5 * solverData.AirDensity * (Math.Pow(vv2, 3)) * ss0 * calcData.Cp;
+                calcData.WPOWER[k - 1] = 0.5 * generalData.AirDensity * (Math.Pow(vv2, 3)) * ss0 * calcData.Cp;
             }
         }
 

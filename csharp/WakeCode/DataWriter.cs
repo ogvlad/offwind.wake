@@ -9,11 +9,11 @@ namespace WakeCode
         /// <summary>
         /// SUBROUTINE  _DATA
         /// </summary>
-        /// <param name="solverData"></param>
+        /// <param name="generalData"></param>
         /// <param name="generalData"></param>
         /// <param name="calcData"> </param>
         /// <param name="dir"> </param>
-        public void Write(SolverData solverData, GeneralData generalData, CalcData calcData, string dir)
+        public void Write(GeneralData generalData, CalcData calcData, string dir)
         {
             using (var fileStream = File.Open(Path.Combine(dir, "FLOW.xyz"), FileMode.OpenOrCreate, FileAccess.Write))
             using (var streamWriter = new StreamWriter(fileStream))
@@ -45,14 +45,14 @@ namespace WakeCode
                 {
                     for (var i = 1; i <= generalData.GridPointsX; i++)
                     {
-                        WRITE(streamWriter, solverData.AirDensity);
+                        WRITE(streamWriter, generalData.AirDensity);
                     }
                 }
                 for (var j = 0; j <= generalData.GridPointsY - 1; j++)
                 {
                     for (var i = 0; i <= generalData.GridPointsX - 1; i++)
                     {
-                        WRITE(streamWriter, solverData.AirDensity * calcData.vell_i[i, j]);
+                        WRITE(streamWriter, generalData.AirDensity * calcData.vell_i[i, j]);
                     }
                 }
                 for (var j = 1; j <= generalData.GridPointsY; j++)
