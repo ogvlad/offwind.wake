@@ -5,48 +5,6 @@ using System.Text;
 
 namespace WakeCode
 {
-    public class GeneralData
-    {
-        public System.Int32 N_TURB;
-        public System.Int32 IMAX;
-        public System.Int32 JMAX;
-        public double dx;
-        public double dy;
-        public double pi;
-        public double xmax;
-        public double ymax;
-        public double ymin;
-        public double xmin;
-        public double ang;
-
-        public double[] x;
-        public double[] y;
-        public double[,] vell_i;
-        public double[] x_turb;     // location of the turbine
-        public double[] y_turb;     // location of the turbine
-        public double[] R_TURB;     // location of the turbine
-        public double[] WPOWER;     // location of the turbine
-        public Int32[] xc_turb;
-        public Int32[] yc_turb;
-    }
-
-    public class SolverData
-    {
-        public double Ct;
-        public double Dturb;
-        public double Kwake;
-        public double H;
-        public double Uhub;
-        public double Dwake;
-        public double Rho;
-        public double Cp;
-        public double dist;
-
-        public float[,] V = new float[1000, 1000];
-        public float[,] Darea = new float[1000, 1000];
-        public float[,] Darea_D = new float[1000, 1000];
-    }
-
     static class Program
     {
         private const double pi = 3.1415926535897;
@@ -56,6 +14,8 @@ namespace WakeCode
         {
             var solverData = new SolverData();
             var generalData = new GeneralData();
+            var dataReader = new DataReader();
+
             //****** declaration of the variable *******************************
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -68,7 +28,7 @@ namespace WakeCode
             //************************************************************************
             //ROTATE THE DOMAIN, AND THE X,Y COORDINATE OF THE TURBINE so that the wind to be in x direction
             //------------------------------------------------------------------
-            READ_DATA(solverData, generalData);
+            dataReader.READ_DATA(solverData, generalData);
             ROTATE_coord(generalData);
             if (solverData.Ct > 1)
             {
@@ -121,93 +81,6 @@ namespace WakeCode
                 generalData.y_turb[i] = YY_TURB[i];
             }
         } // 
-
-        private static void READ(System.IO.TextReader textReader)
-        {
-            textReader.ReadLine();
-        }
-
-        private static void READ(System.IO.TextReader textReader, ref int intValue)
-        {
-            string line = textReader.ReadLine();
-            string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!(lineParts.Length >= 1) || !int.TryParse(lineParts[0], out intValue))
-            {
-                throw new FormatException();
-            }
-        }
-
-        private static void READ(System.IO.TextReader textReader, ref double doubleValue)
-        {
-            double result;
-            string line = textReader.ReadLine();
-            string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!(lineParts.Length >= 1) || !double.TryParse(lineParts[0], out result))
-            {
-                throw new FormatException();
-            }
-            doubleValue = result;
-        }
-
-        private static void READ(System.IO.TextReader textReader, ref double doubleValue1, ref double doubleValue2)
-        {
-            string line = textReader.ReadLine();
-            string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!(lineParts.Length >= 2) || !double.TryParse(lineParts[0], out doubleValue1) || !double.TryParse(lineParts[1], out doubleValue2))
-            {
-                throw new FormatException();
-            }
-        }
-
-        //----------------------------------------------------
-        //************************************************
-        //  SUBROUTINE READ THE DATA !
-        //------------------------------------------------
-        private static void READ_DATA(SolverData solverData, GeneralData generalData)
-        {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            int i, j;
-
-            using (System.IO.FileStream fileStream = System.IO.File.Open("initial_data.inp", System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Read))
-            {
-                using (System.IO.StreamReader streamReader = new System.IO.StreamReader(fileStream))
-                {
-                    READ(streamReader, ref generalData.IMAX);               // The number of grid points in x direction
-                    READ(streamReader, ref generalData.JMAX);               // The number of the grid points in Y direction
-
-                    generalData.x = new double[generalData.IMAX];
-                    generalData.y = new double[generalData.JMAX];
-                    generalData.vell_i = new double[generalData.IMAX, generalData.JMAX];
-
-                    READ(streamReader, ref solverData.Dturb);               // THE DIAMETER OF THE TURBIN
-                    READ(streamReader, ref solverData.H);                   //  THE HEIGHT OF THE TURBINE
-                    READ(streamReader, ref solverData.Ct);                  // TURBINE THRUST COEFFICIENT
-                    READ(streamReader, ref solverData.Kwake);               // wake expand scalar
-                    READ(streamReader, ref solverData.Uhub);                //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
-                    READ(streamReader, ref generalData.N_TURB);             //THE NUMBER OF THE TURBINE
-
-                    generalData.x_turb = new double[generalData.N_TURB];
-                    generalData.y_turb = new double[generalData.N_TURB];
-                    generalData.R_TURB = new double[generalData.N_TURB];
-                    generalData.WPOWER = new double[generalData.N_TURB];
-
-                    generalData.xc_turb = new System.Int32[generalData.N_TURB];
-                    generalData.yc_turb = new System.Int32[generalData.N_TURB];
-
-                    READ(streamReader, ref solverData.Rho);                         // THE DENSITY OF THE AIR 
-                    READ(streamReader, ref solverData.dist);                        // the distance behind the turbine where the power is computed
-                    READ(streamReader, ref generalData.ang);                        // rotational angle of the axis: vellocity has the same direction as Ox
-                    READ(streamReader);
-                    READ(streamReader);
-                    for (i = 0; i <= generalData.N_TURB - 1; i++)
-                    {
-                        READ(streamReader, ref generalData.x_turb[i], ref generalData.y_turb[i]);   // pozition of the turbine
-                    }
-                    READ(streamReader);
-                }
-            }
-        }  // END SUBROUTINE READ DATA
 
 
         //--------------------------------------------------------------------

@@ -46,8 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataReader.cs" />
+    <Compile Include="GeneralData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SolverData.cs" />
     <Compile Include="Tests.cs" />
     <Compile Include="WakeCalc.cs" />
   </ItemGroup>
