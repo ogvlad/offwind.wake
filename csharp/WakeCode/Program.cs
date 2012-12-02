@@ -13,9 +13,8 @@
             dataReader.Read(solverData, generalData);
             calc.Run(generalData, solverData);
 
-
-            dataWriter.WRITE_DATA(solverData, generalData);
-            dataWriter.WRITE_DATA_power(generalData);
+            dataWriter.Write(solverData, generalData);
+            dataWriter.WritePower(generalData);
         }
     }
 }
