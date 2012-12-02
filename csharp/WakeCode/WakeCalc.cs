@@ -18,7 +18,7 @@ namespace WakeCode
                 solverData.TurbineThrust = 0.3;
             }
 
-            solverData.Cp = 0.5 * (1 + Math.Sqrt(1 - solverData.TurbineThrust)) * solverData.TurbineThrust;
+            calcData.Cp = 0.5 * (1 + Math.Sqrt(1 - solverData.TurbineThrust)) * solverData.TurbineThrust;
 
             ORDER(generalData);
 
@@ -331,7 +331,7 @@ namespace WakeCode
                 }
                 vv2 = (vv2 + vv1 * (ss0 - SS)) / ss0;
 
-                calcData.WPOWER[k - 1] = 0.5 * solverData.AirDensity * (Math.Pow(vv2, 3)) * ss0 * solverData.Cp;
+                calcData.WPOWER[k - 1] = 0.5 * solverData.AirDensity * (Math.Pow(vv2, 3)) * ss0 * calcData.Cp;
             }
         }
 

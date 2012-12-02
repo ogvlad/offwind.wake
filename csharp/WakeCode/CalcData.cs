@@ -11,6 +11,7 @@ namespace WakeCode
         public double ymax;
         public double ymin;
         public double xmin;
+        public double Cp;
 
         public double[] x;
         public double[] y;
