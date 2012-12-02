@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WakeCode
+namespace WakeCode2
 {
     internal static class GeneralData
     {
@@ -25,12 +25,12 @@ namespace WakeCode
         public static float[,] V = new float[1000, 1000], Darea = new float[1000, 1000], Darea_D = new float[1000, 1000];
     }
 
-    static class Program
+    public class WakeCalc
     {
         private const double pi = 3.1415926535897;
         //private const double pi = Math.PI;
 
-        private static void Main(string[] args)
+        public static void Run(string[] args)
         {
             //****** declaration of the variable *******************************
             //GeneralData GeneralData = new GeneralData();
