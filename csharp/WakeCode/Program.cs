@@ -42,9 +42,9 @@ namespace WakeCode
         public double Cp;
         public double dist;
 
-        public static float[,] V = new float[1000, 1000];
-        public static float[,] Darea = new float[1000, 1000];
-        public static float[,] Darea_D = new float[1000, 1000];
+        public float[,] V = new float[1000, 1000];
+        public float[,] Darea = new float[1000, 1000];
+        public float[,] Darea_D = new float[1000, 1000];
     }
 
     static class Program
