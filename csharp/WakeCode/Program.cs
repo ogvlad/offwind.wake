@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WakeCode
 {
-    internal class GeneralData
+    public class GeneralData
     {
         public static System.Int32 N_TURB;
         public static System.Int32 IMAX;
@@ -30,9 +30,9 @@ namespace WakeCode
         public static Int32[] yc_turb;
     }
 
-    internal class SolverData
+    public class SolverData
     {
-        public static double Ct;
+        public double Ct;
         public static double Dturb;
         public static double Kwake;
         public static double H;
@@ -52,6 +52,7 @@ namespace WakeCode
 
         private static void Main(string[] args)
         {
+            var solverData = new SolverData();
             //****** declaration of the variable *******************************
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -64,15 +65,15 @@ namespace WakeCode
             //************************************************************************
             //ROTATE THE DOMAIN, AND THE X,Y COORDINATE OF THE TURBINE so that the wind to be in x direction
             //------------------------------------------------------------------
-            READ_DATA();
+            READ_DATA(solverData);
             ROTATE_coord();
-            if (SolverData.Ct > 1)
+            if (solverData.Ct > 1)
             {
                 Console.WriteLine(" The value of the Ct should be less 1, hence Ct=0.3)");
-                SolverData.Ct = 0.3;
+                solverData.Ct = 0.3;
             }
 
-            SolverData.Cp = 0.5 * (1 + Math.Sqrt(1 - SolverData.Ct)) * SolverData.Ct;
+            SolverData.Cp = 0.5 * (1 + Math.Sqrt(1 - solverData.Ct)) * solverData.Ct;
 
             ORDER();
 
@@ -85,7 +86,7 @@ namespace WakeCode
             DOMAIN_PT(ref GeneralData.y, ref GeneralData.JMAX, ref GeneralData.dy, ref SolverData.Dturb, ref GeneralData.y_turb, ref GeneralData.N_TURB, ref GeneralData.ymax, ref GeneralData.ymin, ref ppp);
             Turb_centr_coord(ref GeneralData.N_TURB, ref GeneralData.IMAX, ref GeneralData.x, ref GeneralData.x_turb, ref GeneralData.xc_turb);
             Turb_centr_coord(ref GeneralData.N_TURB, ref GeneralData.JMAX, ref GeneralData.y, ref GeneralData.y_turb, ref GeneralData.yc_turb);
-            COMPUTE_VELL();
+            COMPUTE_VELL(solverData);
 
             WRITE_DATA();
 
@@ -159,7 +160,7 @@ namespace WakeCode
         //************************************************
         //  SUBROUTINE READ THE DATA !
         //------------------------------------------------
-        private static void READ_DATA()
+        private static void READ_DATA(SolverData solverData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -178,7 +179,7 @@ namespace WakeCode
 
                     READ(streamReader, ref SolverData.Dturb);               // THE DIAMETER OF THE TURBIN
                     READ(streamReader, ref SolverData.H);                   //  THE HEIGHT OF THE TURBINE
-                    READ(streamReader, ref SolverData.Ct);                  // TURBINE THRUST COEFFICIENT
+                    READ(streamReader, ref solverData.Ct);                  // TURBINE THRUST COEFFICIENT
                     READ(streamReader, ref SolverData.Kwake);               // wake expand scalar
                     READ(streamReader, ref SolverData.Uhub);                //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
                     READ(streamReader, ref GeneralData.N_TURB);             //THE NUMBER OF THE TURBINE
@@ -405,7 +406,7 @@ namespace WakeCode
         //************************************************************************
         // *                         SUBROUTINE  _SHADOW AREA 
         //*********************************************************************** 
-        private static void COMPUTE_VELL()
+        private static void COMPUTE_VELL(SolverData solverData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -478,15 +479,15 @@ namespace WakeCode
                         if (((-GeneralData.vell_i[ii - 1, J - 1] + SolverData.Uhub) > 0) && (ii > GeneralData.xc_turb[K - 1] + nk))
                         {
                             vv = GeneralData.vell_i[ii - 1, J - 1];
-                            GeneralData.vell_i[ii - 1, J - 1] = SolverData.Uhub + SolverData.Uhub * (Math.Sqrt(1 - SolverData.Ct) - 1) * ((r0 * r0) / (rrt * rrt));
-                            GeneralData.vell_i[ii - 1, J - 1] = GeneralData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - SolverData.Ct)) * SS);
+                            GeneralData.vell_i[ii - 1, J - 1] = SolverData.Uhub + SolverData.Uhub * (Math.Sqrt(1 - solverData.Ct) - 1) * ((r0 * r0) / (rrt * rrt));
+                            GeneralData.vell_i[ii - 1, J - 1] = GeneralData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - solverData.Ct)) * SS);
                             //vell_i(ii,j)=(vell_i(ii,j)+0.15*vv)/1.15;
                             GeneralData.vell_i[ii - 1, J - 1] = Math.Min(vv, GeneralData.vell_i[ii - 1, J - 1]);
                         }
                         else
                         {
-                            GeneralData.vell_i[ii - 1, J - 1] = SolverData.Uhub + SolverData.Uhub * (Math.Sqrt(1 - SolverData.Ct) - 1) * (r0 / rrt) * (r0 / rrt);
-                            GeneralData.vell_i[ii - 1, J - 1] = GeneralData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - SolverData.Ct)) * SS);
+                            GeneralData.vell_i[ii - 1, J - 1] = SolverData.Uhub + SolverData.Uhub * (Math.Sqrt(1 - solverData.Ct) - 1) * (r0 / rrt) * (r0 / rrt);
+                            GeneralData.vell_i[ii - 1, J - 1] = GeneralData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - solverData.Ct)) * SS);
                         }
                     }
                 }
