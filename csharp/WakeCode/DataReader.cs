@@ -14,20 +14,20 @@ namespace WakeCode
             using (var fileStream = File.Open("initial_data.inp", FileMode.OpenOrCreate, FileAccess.Read))
             using (var streamReader = new StreamReader(fileStream))
             {
-                READ(streamReader, ref generalData.IMAX); // The number of grid points in x direction
-                READ(streamReader, ref generalData.JMAX); // The number of the grid points in Y direction
+                generalData.IMAX = ReadInt(streamReader); // The number of grid points in x direction
+                generalData.JMAX = ReadInt(streamReader); // The number of the grid points in Y direction
 
                 generalData.x = new double[generalData.IMAX];
                 generalData.y = new double[generalData.JMAX];
                 generalData.vell_i = new double[generalData.IMAX,generalData.JMAX];
 
-                READ(streamReader, ref solverData.Dturb); // THE DIAMETER OF THE TURBIN
-                READ(streamReader, ref solverData.H); //  THE HEIGHT OF THE TURBINE
-                READ(streamReader, ref solverData.Ct); // TURBINE THRUST COEFFICIENT
-                READ(streamReader, ref solverData.Kwake); // wake expand scalar
-                READ(streamReader, ref solverData.Uhub);
+                solverData.Dturb = ReadDouble(streamReader); // THE DIAMETER OF THE TURBIN
+                solverData.H = ReadDouble(streamReader); //  THE HEIGHT OF THE TURBINE
+                solverData.Ct = ReadDouble(streamReader); // TURBINE THRUST COEFFICIENT
+                solverData.Kwake = ReadDouble(streamReader); // wake expand scalar
+                solverData.Uhub = ReadDouble(streamReader);
                     //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
-                READ(streamReader, ref generalData.N_TURB); //THE NUMBER OF THE TURBINE
+                generalData.N_TURB = ReadInt(streamReader); //THE NUMBER OF THE TURBINE
 
                 generalData.x_turb = new double[generalData.N_TURB];
                 generalData.y_turb = new double[generalData.N_TURB];
@@ -37,55 +37,62 @@ namespace WakeCode
                 generalData.xc_turb = new System.Int32[generalData.N_TURB];
                 generalData.yc_turb = new System.Int32[generalData.N_TURB];
 
-                READ(streamReader, ref solverData.Rho); // THE DENSITY OF THE AIR 
-                READ(streamReader, ref solverData.dist); // the distance behind the turbine where the power is computed
-                READ(streamReader, ref generalData.ang);
+                solverData.Rho = ReadDouble(streamReader); // THE DENSITY OF THE AIR 
+                solverData.dist = ReadDouble(streamReader); // the distance behind the turbine where the power is computed
+                generalData.ang = ReadDouble(streamReader);
                     // rotational angle of the axis: vellocity has the same direction as Ox
-                READ(streamReader);
-                READ(streamReader);
+                ReadEmpty(streamReader);
+                ReadEmpty(streamReader);
                 for (var i = 0; i <= generalData.N_TURB - 1; i++)
                 {
-                    READ(streamReader, ref generalData.x_turb[i], ref generalData.y_turb[i]); // pozition of the turbine
+                    var t = ReadXY(streamReader); // pozition of the turbine
+                    generalData.x_turb[i] = t.Item1;
+                    generalData.y_turb[i] = t.Item2;
                 }
-                READ(streamReader);
+                ReadEmpty(streamReader);
             }
         }
 
-        private static void READ(TextReader textReader)
+        private static void ReadEmpty(TextReader textReader)
         {
             textReader.ReadLine();
         }
 
-        private static void READ(TextReader textReader, ref int intValue)
+        private static int ReadInt(TextReader textReader)
         {
+            int intValue;
             string line = textReader.ReadLine();
             string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (!(lineParts.Length >= 1) || !int.TryParse(lineParts[0], out intValue))
             {
                 throw new FormatException();
             }
+            return intValue;
         }
 
-        private static void READ(TextReader textReader, ref double doubleValue)
+        private static double ReadDouble(TextReader textReader)
         {
-            double result;
+            double doubleValue;
             string line = textReader.ReadLine();
             string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!(lineParts.Length >= 1) || !double.TryParse(lineParts[0], out result))
+            if (!(lineParts.Length >= 1) || !double.TryParse(lineParts[0], out doubleValue))
             {
                 throw new FormatException();
             }
-            doubleValue = result;
+            return doubleValue;
         }
 
-        private static void READ(TextReader textReader, ref double doubleValue1, ref double doubleValue2)
+        private static Tuple<double, double> ReadXY(TextReader textReader)
         {
+            double doubleValue1;
+            double doubleValue2;
             string line = textReader.ReadLine();
             string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (!(lineParts.Length >= 2) || !double.TryParse(lineParts[0], out doubleValue1) || !double.TryParse(lineParts[1], out doubleValue2))
             {
                 throw new FormatException();
             }
+            return new Tuple<double, double>(doubleValue1, doubleValue2);
         }
     }
 }
