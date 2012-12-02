@@ -253,66 +253,37 @@ namespace WakeCode
         /// <param name="generalData"></param>
         private void COMPUTE_WPower(SolverData solverData, GeneralData generalData)
         {
-            int I;
-            int J;
-            int K;
-            int Ni;
-            int nj;
-            int jj_max;
-            int jj_min;
-            int ii;
-            int JJ;
-            int nd;
-            int nk;
-            int mm;
-            double[] SHADOW = new double[generalData.N_TURB];
-            double DIJ;
-            double RR_I;
-            double ALPHA_I;
-            double ALPHA_K;
-            double LIJ;
-            double PP;
-            double SS;
-            double ss0;
-            double RR_k;
-            double vv;
-            double SPOWER;
-            double vv1;
-            double vv2;
-            double[] v_power = new double[generalData.N_TURB];
+            var SHADOW = new double[generalData.N_TURB];
+            var v_power = new double[generalData.N_TURB];
 
-            double r0;
-            double x_dist;
-            double rr_max;
-            double rrt;
             double area = 0;
+            double r0 = 0.5 * solverData.Dturb;
+            double ss0 = (pi * r0 * r0);
+            var I = (int)Math.Truncate(solverData.dist / generalData.dx);
+            int nd = Math.Max(1, I);
 
-            r0 = 0.5 * solverData.Dturb; // all the tubine have the same diameter
-
-            ss0 = (pi * r0 * r0);
-            I = (int)Math.Truncate(solverData.dist / generalData.dx);
-            nd = Math.Max(1, I);
-
-            for (K = 1; K <= generalData.N_TURB; K++)
+            for (var k = 1; k <= generalData.N_TURB; k++)
             {
-                J = 0;
-                SS = 0.0;
-                nk = Math.Max(1, generalData.xc_turb[K - 1] - nd);
-                vv1 = generalData.vell_i[nk - 1, generalData.yc_turb[K - 1] - 1];
-                generalData.WPOWER[K - 1] = 0.0;
-                vv2 = 0.0;
-                for (I = K - 1; I >= 1; I = I - 1) // calculate the influence of the turbine i over the turbine k
+                int J = 0;
+                double SS = 0.0;
+                int nk = Math.Max(1, generalData.xc_turb[k - 1] - nd);
+                double vv1 = generalData.vell_i[nk - 1, generalData.yc_turb[k - 1] - 1];
+                generalData.WPOWER[k - 1] = 0.0;
+                double vv2 = 0.0;
+                for (var i = k - 1; i >= 1; i = i - 1) // calculate the influence of the turbine i over the turbine k
                 {
-                    RR_I = r0 + solverData.Kwake * (generalData.x[nk - 1] - generalData.x[generalData.xc_turb[I - 1] - 1]);
-                    DIJ = Math.Abs(generalData.y_turb[I - 1] - generalData.y_turb[K - 1]);
+                    double RR_I = r0 + solverData.Kwake * (generalData.x[nk - 1] - generalData.x[generalData.xc_turb[i - 1] - 1]);
+                    double DIJ = Math.Abs(generalData.y_turb[i - 1] - generalData.y_turb[k - 1]);
 
                     if (((DIJ) < (RR_I + r0)) && (RR_I <= (r0 + DIJ)))
                     {
                         J = J + 1;
-                        ALPHA_I = (RR_I * RR_I) + (DIJ * DIJ) - (r0 * r0);
+
+                        double ALPHA_I = (RR_I * RR_I) + (DIJ * DIJ) - (r0 * r0);
                         ALPHA_I = ALPHA_I / (2 * RR_I * DIJ);
                         ALPHA_I = Math.Acos(ALPHA_I);
-                        ALPHA_K = (r0 * r0) + (DIJ * DIJ) - (RR_I * RR_I);
+
+                        double ALPHA_K = (r0 * r0) + (DIJ * DIJ) - (RR_I * RR_I);
                         ALPHA_K = ALPHA_K / (2 * r0 * DIJ);
                         ALPHA_K = Math.Acos(ALPHA_K);
                         AAREA(ref RR_I, ref r0, ref DIJ, ref area);
@@ -323,19 +294,22 @@ namespace WakeCode
                         SS = SS + SHADOW[J - 1];
                         if (SS < ss0)
                         {
-                            if (generalData.y_turb[K - 1] > generalData.y_turb[I - 1])
+                            int jj_max;
+                            int jj_min;
+                            int mm;
+                            if (generalData.y_turb[k - 1] > generalData.y_turb[i - 1])
                             {
                                 mm = (INT(RR_I / generalData.dy));
-                                jj_max = Math.Min(generalData.JMAX, generalData.yc_turb[I - 1] + mm + 1);
-                                jj_min = Math.Max(1, generalData.yc_turb[I - 1] + mm - 2);
+                                jj_max = Math.Min(generalData.JMAX, generalData.yc_turb[i - 1] + mm + 1);
+                                jj_min = Math.Max(1, generalData.yc_turb[i - 1] + mm - 2);
                                 vv1 = generalData.vell_i[nk - 1, jj_max - 1];
                                 v_power[J - 1] = generalData.vell_i[nk - 1, jj_min - 1];
                             }
                             else
                             {
                                 mm = (INT(RR_I / generalData.dy));
-                                jj_max = Math.Min(generalData.JMAX, generalData.yc_turb[I - 1] + mm + 1);
-                                jj_min = Math.Max(1, generalData.yc_turb[I - 1] + mm - 2);
+                                jj_max = Math.Min(generalData.JMAX, generalData.yc_turb[i - 1] + mm + 1);
+                                jj_min = Math.Max(1, generalData.yc_turb[i - 1] + mm - 2);
                                 vv1 = generalData.vell_i[nk - 1, jj_min - 1];
                                 v_power[J - 1] = generalData.vell_i[nk - 1, jj_max - 1];
                             }
@@ -349,14 +323,14 @@ namespace WakeCode
 
                 if (J > 0)
                 {
-                    for (I = 1; I <= J; I++)
+                    for (var i = 1; i <= J; i++)
                     {
                         vv2 = v_power[J - 1] * SHADOW[J - 1] + vv2;
                     }
                 }
                 vv2 = (vv2 + vv1 * (ss0 - SS)) / ss0;
 
-                generalData.WPOWER[K - 1] = 0.5 * solverData.Rho * (Math.Pow(vv2, 3)) * ss0 * solverData.Cp;
+                generalData.WPOWER[k - 1] = 0.5 * solverData.Rho * (Math.Pow(vv2, 3)) * ss0 * solverData.Cp;
             }
         }
 
