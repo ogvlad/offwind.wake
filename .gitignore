@@ -1,1 +1,4 @@
 /csharp/*.suo
+/csharp/_ReSharper.WakeCode
+/csharp/WakeCode/obj
+/csharp/WakeCode/bin
