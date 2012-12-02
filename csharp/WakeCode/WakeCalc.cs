@@ -9,15 +9,7 @@ namespace WakeCode
 
         public void Run(GeneralData generalData, SolverData solverData)
         {
-
-            //****** declaration of the variable *******************************
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            System.Int32 i, j, k;
             double ppp;
-            float W_coef;
-            char[] file1 = new char[80];
-            //*************************************************
 
             //************************************************************************
             //ROTATE THE DOMAIN, AND THE X,Y COORDINATE OF THE TURBINE so that the wind to be in x direction
@@ -50,16 +42,15 @@ namespace WakeCode
             WRITE_DATA_power(generalData);
         }
 
-        //*********************************************************
-        //   rotate the coordinate of the turbine
-        //--------------------------------------------
+        /// <summary>
+        /// rotate the coordinate of the turbines
+        /// </summary>
+        /// <param name="generalData"></param>
         public void ROTATE_coord(GeneralData generalData)
         {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData;
-
             int i;
-            double[] XX_TURB = new double[generalData.N_TURB], YY_TURB = new double[generalData.N_TURB];
+            var XX_TURB = new double[generalData.N_TURB];
+            var YY_TURB = new double[generalData.N_TURB];
             double ang1;
             ang1 = generalData.ang * pi / 180;
             for (i = 0; i <= generalData.N_TURB - 1; i++)
@@ -76,14 +67,21 @@ namespace WakeCode
         } // 
 
 
-        //--------------------------------------------------------------------
-        //   COMPUTE THE GRID POINTS 
-        //************************************************************************
-        private static void DOMAIN_PT(ref double[] XX, ref System.Int32 IIMAX, ref double DDX, ref double DDtur, ref double[] XX_TURB, ref System.Int32 NN_TURB, ref double XXMAX, ref double XXMIN, ref double pppoint)
+        /// <summary>
+        /// COMPUTE THE GRID POINTS
+        /// </summary>
+        /// <param name="XX"></param>
+        /// <param name="IIMAX"></param>
+        /// <param name="DDX"></param>
+        /// <param name="DDtur"></param>
+        /// <param name="XX_TURB"></param>
+        /// <param name="NN_TURB"></param>
+        /// <param name="XXMAX"></param>
+        /// <param name="XXMIN"></param>
+        /// <param name="pppoint"></param>
+        private void DOMAIN_PT(ref double[] XX, ref System.Int32 IIMAX, ref double DDX, ref double DDtur, ref double[] XX_TURB, ref System.Int32 NN_TURB, ref double XXMAX, ref double XXMIN, ref double pppoint)
         {
             int i;
-            //REAL(kind=8) ::XX(IIMAX)
-            //REAL (kind=8) ::XX_TURB(NN_TURB) 
 
             XXMAX = XX_TURB[0];
             XXMIN = XX_TURB[0];
@@ -109,22 +107,21 @@ namespace WakeCode
                 XX[i] = XX[i - 1] + DDX;
             }
             pppoint = 0.0;
-        } // subroutine that compute the grid points
-        //-----------------------------------------------------------
+        }
 
-
-        //************************************************************?
-        //   ROTATE COORDINATE THAT THE wind to be in X ? DIRECTION
-        //------------------------------------------------------------- 
-
-        //***********************************************************************
-        // the subroutine determine the coordinates of the center of the turbine
-        //*****************************************************
-        private static void Turb_centr_coord(ref System.Int32 nn, ref System.Int32 iimax, ref double[] xx, ref double[] xx_turb, ref System.Int32[] xxc_turb)
+        /// <summary>
+        /// ROTATE COORDINATE THAT THE wind to be in X ? DIRECTION
+        /// the subroutine determine the coordinates of the center of the turbine
+        /// </summary>
+        /// <param name="nn"></param>
+        /// <param name="iimax"></param>
+        /// <param name="xx"></param>
+        /// <param name="xx_turb"></param>
+        /// <param name="xxc_turb"></param>
+        private void Turb_centr_coord(ref System.Int32 nn, ref System.Int32 iimax, ref double[] xx, ref double[] xx_turb, ref System.Int32[] xxc_turb)
         {
-            System.Int32 i, ii;
-            //INTEGER (kind=4):: xxc_turb(nn)
-            //REAL (kind=8):: xx_turb(nn), xx(iimax)
+            System.Int32 i;
+            System.Int32 ii;
 
             for (i = 0; i <= nn - 1; i++)
             {
@@ -133,23 +130,23 @@ namespace WakeCode
                     if (xx[ii] <= xx_turb[i] && xx_turb[i] < xx[ii + 1])
                     {
                         xxc_turb[i] = ii + 1;
-                        //EXIT
                         break;
                     }
                 }
             }
-        } // subroutine deternines the center coordinates of the turbines
-        //--------------------------------------------------------------
+        }
 
-        //*****************************************************************
-        // ORDER of THE TURBINE in function of x coordinate
-        //_******************************************************************??? 
-        private static void ORDER(GeneralData generalData)
+        /// <summary>
+        /// ORDER of THE TURBINE in function of x coordinate
+        /// </summary>
+        /// <param name="generalData"></param>
+        private void ORDER(GeneralData generalData)
         {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            int i, j, k;
-            double aa, bb;
+            int i;
+            int j;
+            int k;
+            double aa;
+            double bb;
 
             for (i = 1; i <= generalData.N_TURB - 1; i++)
             {
@@ -185,29 +182,27 @@ namespace WakeCode
             }
             //}
 
-        } // SUBROUTINE puts in order the turbine
-        //--------------------------------------------------------------------------
+        }
 
-        private static void WRITE(System.IO.TextWriter textWriter, params object[] values)
+        private void WRITE(System.IO.TextWriter textWriter, params object[] values)
         {
             string line = values.Aggregate("", (string partialLine, object value) => { return partialLine + " " + value.ToString(); }, (string partialLine) => { return (partialLine.Length >= 1 ? partialLine.Substring(1) : partialLine); });
             textWriter.WriteLine(line);
         }
 
-        //************************************************************************
-        // *                         SUBROUTINE  _DATA                        *
-        //*********************************************************************** 
-        private static void WRITE_DATA(SolverData solverData, GeneralData generalData)
+        /// <summary>
+        /// SUBROUTINE  _DATA
+        /// </summary>
+        /// <param name="solverData"></param>
+        /// <param name="generalData"></param>
+        private void WRITE_DATA(SolverData solverData, GeneralData generalData)
         {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            int i, j;
-            //	character*80 file1
-            //	file1='datab.1'
+            int i;
+            int j;
 
             using (System.IO.FileStream fileStream = System.IO.File.Open("FLOW.xyz", System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write))
             {
-                using (System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(fileStream))
+                using (var streamWriter = new System.IO.StreamWriter(fileStream))
                 {
                     WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
                     for (j = 1; j <= generalData.JMAX; j++)
@@ -230,7 +225,7 @@ namespace WakeCode
 
             using (System.IO.FileStream fileStream = System.IO.File.Open("FLOW.q", System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write))
             {
-                using (System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(fileStream))
+                using (var streamWriter = new System.IO.StreamWriter(fileStream))
                 {
                     WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
                     WRITE(streamWriter, "0.1   ", "  10  ", "  10000  ", "  0.1 ");
@@ -265,26 +260,45 @@ namespace WakeCode
                 }
             }
         }
-        //************************************************************************
 
-        private static int INT(double doubleValue)
+        private int INT(double doubleValue)
         {
             return (int)doubleValue;
         }
 
-        //************************************************************************
-        // *                         SUBROUTINE  _SHADOW AREA 
-        //*********************************************************************** 
-        private static void COMPUTE_VELL(SolverData solverData, GeneralData generalData)
+        /// <summary>
+        /// SUBROUTINE  _SHADOW AREA
+        /// </summary>
+        /// <param name="solverData"></param>
+        /// <param name="generalData"></param>
+        private void COMPUTE_VELL(SolverData solverData, GeneralData generalData)
         {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            int I, J, K, Ni, nj, jj_max, jj_min, ii, nk;
+            int I;
+            int J;
+            int K;
+            int Ni;
+            int nj;
+            int jj_max;
+            int jj_min;
+            int ii;
+            int nk;
             double[] SHADOW = new double[generalData.N_TURB];
-            double DIJ, RR_I, ALPHA_I, ALPHA_K, LIJ;
-            double PP, SS, ss0, RR_k, vv;
+            double DIJ;
+            double RR_I;
+            double ALPHA_I;
+            double ALPHA_K;
+            double LIJ;
+            double PP;
+            double SS;
+            double ss0;
+            double RR_k;
+            double vv;
 
-            double r0, x_dist, rr_max = 0, rrt, area = 0;
+            double r0;
+            double x_dist;
+            double rr_max = 0;
+            double rrt;
+            double area = 0;
 
             for (I = 0; I <= generalData.IMAX - 1; I++)
             {
@@ -361,26 +375,48 @@ namespace WakeCode
                     }
                 }
             }
-        }   // subroutine that compute the velocity in front of the wind turbine
+        }
 
-
-        //******************************************************************************
-
-        //
-        //************************************************************************
-        // *       SUBROUTINE  compute the power at the distance dist behind the WT
-        //*********************************************************************** 
-        private static void COMPUTE_WPower(SolverData solverData, GeneralData generalData)
+        /// <summary>
+        /// SUBROUTINE  compute the power at the distance dist behind the WT
+        /// </summary>
+        /// <param name="solverData"></param>
+        /// <param name="generalData"></param>
+        private void COMPUTE_WPower(SolverData solverData, GeneralData generalData)
         {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            int I, J, K, Ni, nj, jj_max, jj_min, ii, JJ, nd, nk, mm;
+            int I;
+            int J;
+            int K;
+            int Ni;
+            int nj;
+            int jj_max;
+            int jj_min;
+            int ii;
+            int JJ;
+            int nd;
+            int nk;
+            int mm;
             double[] SHADOW = new double[generalData.N_TURB];
-            double DIJ, RR_I, ALPHA_I, ALPHA_K, LIJ;
-            double PP, SS, ss0, RR_k, vv, SPOWER, vv1, vv2;
+            double DIJ;
+            double RR_I;
+            double ALPHA_I;
+            double ALPHA_K;
+            double LIJ;
+            double PP;
+            double SS;
+            double ss0;
+            double RR_k;
+            double vv;
+            double SPOWER;
+            double vv1;
+            double vv2;
             double[] v_power = new double[generalData.N_TURB];
 
-            double r0, x_dist, rr_max, rrt, area = 0;
+            double r0;
+            double x_dist;
+            double rr_max;
+            double rrt;
+            double area = 0;
 
             r0 = 0.5 * solverData.Dturb; // all the tubine have the same diameter
 
@@ -453,26 +489,20 @@ namespace WakeCode
 
                 generalData.WPOWER[K - 1] = 0.5 * solverData.Rho * (Math.Pow(vv2, 3)) * ss0 * solverData.Cp;
             }
-        }   // subroutine that compute the velocity in front of the wind turbine
+        }
 
-        //**********************************************************************************
-
-        //************************************************************************
-        // *                         SUBROUTINE  _DATA Power                       *
-        //*********************************************************************** 
-        private static void WRITE_DATA_power(GeneralData generalData)
+        /// <summary>
+        /// SUBROUTINE  _DATA Power
+        /// </summary>
+        /// <param name="generalData"></param>
+        private void WRITE_DATA_power(GeneralData generalData)
         {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            int i;
-            //char[] file1 = new char[80];
-            //file1 = "power_data.1";
-
             using (System.IO.FileStream fileStream = System.IO.File.Open("Power_Output.dat", System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write))
             {
                 using (System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(fileStream))
                 {
                     WRITE(streamWriter, "   Turbine Number(m)   ", "Turbine Location-X(m)   ", "Turbine Location-Y(m)    ", "POWER(W)");
+                    int i;
                     for (i = 1; i <= generalData.N_TURB; i++)
                     {
                         WRITE(streamWriter, i, generalData.x_turb[i - 1], generalData.y_turb[i - 1], generalData.WPOWER[i - 1]);
@@ -480,18 +510,19 @@ namespace WakeCode
                 }
             }
         }
-        //************************************************************************	
 
-        //************************************************************************
-        //  FUNCTION : COMPUTE AREA
-        //--------------------------------------------------------------
-        private static void AAREA(ref double X, ref double Y, ref double Z, ref double area)
+        /// <summary>
+        /// FUNCTION : COMPUTE AREA
+        /// </summary>
+        /// <param name="X"></param>
+        /// <param name="Y"></param>
+        /// <param name="Z"></param>
+        /// <param name="area"></param>
+        private void AAREA(ref double X, ref double Y, ref double Z, ref double area)
         {
-            double PP;
-            PP = (X + Y + Z) * 0.5;
+            double PP = (X + Y + Z) * 0.5;
             area = Math.Sqrt(PP * (PP - X) * (PP - Y) * (PP - Z));
             return;
         }
-        //-------------------------------------------------------------
     }
 }
