@@ -1,37 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace WakeCode2
+namespace WakeCode
 {
-    internal static class GeneralData
-    {
-        public static System.Int32 N_TURB, IMAX, JMAX;
-        public static double dx, dy, pi, xmax, ymax, ymin, xmin, ang;
-
-        public static double[] x, y;
-        public static double[,] vell_i;
-        public static double[] x_turb, y_turb, R_TURB, WPOWER;     // location of the turbine
-        public static System.Int32[] xc_turb, yc_turb;
-    }
-
-    internal static class SolverData
-    {
-        //USE GeneralData
-        public static double Ct, Dturb, Kwake, H, Uhub, Dwake;
-        public static double rho, Cp, dist;
-
-        public static float[,] V = new float[1000, 1000], Darea = new float[1000, 1000], Darea_D = new float[1000, 1000];
-    }
-
     public class WakeCalc
     {
-        private const double pi = 3.1415926535897;
-        //private const double pi = Math.PI;
+        public const double pi = 3.1415926535897;
 
-        public static void Run(string[] args)
+        public void Run(GeneralData generalData, SolverData solverData)
         {
+
             //****** declaration of the variable *******************************
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -44,146 +22,58 @@ namespace WakeCode2
             //************************************************************************
             //ROTATE THE DOMAIN, AND THE X,Y COORDINATE OF THE TURBINE so that the wind to be in x direction
             //------------------------------------------------------------------
-            READ_DATA();
-            ROTATE_coord();
-            if (SolverData.Ct > 1)
+            ROTATE_coord(generalData);
+            if (solverData.Ct > 1)
             {
                 Console.WriteLine(" The value of the Ct should be less 1, hence Ct=0.3)");
-                SolverData.Ct = 0.3;
+                solverData.Ct = 0.3;
             }
 
-            SolverData.Cp = 0.5 * (1 + Math.Sqrt(1 - SolverData.Ct)) * SolverData.Ct;
+            solverData.Cp = 0.5 * (1 + Math.Sqrt(1 - solverData.Ct)) * solverData.Ct;
 
-            ORDER();
+            ORDER(generalData);
 
             ppp = 5.0;
 
-            DOMAIN_PT(ref GeneralData.x, ref GeneralData.IMAX, ref GeneralData.dx, ref SolverData.Dturb, ref GeneralData.x_turb, ref GeneralData.N_TURB, ref GeneralData.xmax, ref GeneralData.xmin, ref ppp);
+            DOMAIN_PT(ref generalData.x, ref generalData.IMAX, ref generalData.dx, ref solverData.Dturb, ref generalData.x_turb, ref generalData.N_TURB, ref generalData.xmax, ref generalData.xmin, ref ppp);
 
             ppp = 2.0;
 
-            DOMAIN_PT(ref GeneralData.y, ref GeneralData.JMAX, ref GeneralData.dy, ref SolverData.Dturb, ref GeneralData.y_turb, ref GeneralData.N_TURB, ref GeneralData.ymax, ref GeneralData.ymin, ref ppp);
-            Turb_centr_coord(ref GeneralData.N_TURB, ref GeneralData.IMAX, ref GeneralData.x, ref GeneralData.x_turb, ref GeneralData.xc_turb);
-            Turb_centr_coord(ref GeneralData.N_TURB, ref GeneralData.JMAX, ref GeneralData.y, ref GeneralData.y_turb, ref GeneralData.yc_turb);
-            COMPUTE_VELL();
+            DOMAIN_PT(ref generalData.y, ref generalData.JMAX, ref generalData.dy, ref solverData.Dturb, ref generalData.y_turb, ref generalData.N_TURB, ref generalData.ymax, ref generalData.ymin, ref ppp);
+            Turb_centr_coord(ref generalData.N_TURB, ref generalData.IMAX, ref generalData.x, ref generalData.x_turb, ref generalData.xc_turb);
+            Turb_centr_coord(ref generalData.N_TURB, ref generalData.JMAX, ref generalData.y, ref generalData.y_turb, ref generalData.yc_turb);
+            COMPUTE_VELL(solverData, generalData);
 
-            WRITE_DATA();
+            WRITE_DATA(solverData, generalData);
 
-            COMPUTE_WPower();
-            WRITE_DATA_power();
+            COMPUTE_WPower(solverData, generalData);
+            WRITE_DATA_power(generalData);
         }
 
         //*********************************************************
         //   rotate the coordinate of the turbine
         //--------------------------------------------
-        private static void ROTATE_coord()
+        public void ROTATE_coord(GeneralData generalData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData;
 
             int i;
-            double[] XX_TURB = new double[GeneralData.N_TURB], YY_TURB = new double[GeneralData.N_TURB];
+            double[] XX_TURB = new double[generalData.N_TURB], YY_TURB = new double[generalData.N_TURB];
             double ang1;
-            ang1 = GeneralData.ang * pi / 180;
-            for (i = 0; i <= GeneralData.N_TURB - 1; i++)
+            ang1 = generalData.ang * pi / 180;
+            for (i = 0; i <= generalData.N_TURB - 1; i++)
             {
-                XX_TURB[i] = GeneralData.x_turb[i] * Math.Cos(ang1) - GeneralData.y_turb[i] * Math.Sin(ang1);
-                YY_TURB[i] = GeneralData.x_turb[i] * Math.Sin(ang1) + GeneralData.y_turb[i] * Math.Cos(ang1);
+                XX_TURB[i] = generalData.x_turb[i] * Math.Cos(ang1) - generalData.y_turb[i] * Math.Sin(ang1);
+                YY_TURB[i] = generalData.x_turb[i] * Math.Sin(ang1) + generalData.y_turb[i] * Math.Cos(ang1);
             }
 
-            for (i = 0; i <= GeneralData.N_TURB - 1; i++)
+            for (i = 0; i <= generalData.N_TURB - 1; i++)
             {
-                GeneralData.x_turb[i] = XX_TURB[i];
-                GeneralData.y_turb[i] = YY_TURB[i];
+                generalData.x_turb[i] = XX_TURB[i];
+                generalData.y_turb[i] = YY_TURB[i];
             }
         } // 
-
-        private static void READ(System.IO.TextReader textReader)
-        {
-            textReader.ReadLine();
-        }
-
-        private static void READ(System.IO.TextReader textReader, ref int intValue)
-        {
-            string line = textReader.ReadLine();
-            string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!(lineParts.Length >= 1) || !int.TryParse(lineParts[0], out intValue))
-            {
-                throw new FormatException();
-            }
-        }
-
-        private static void READ(System.IO.TextReader textReader, ref double doubleValue)
-        {
-            double result;
-            string line = textReader.ReadLine();
-            string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!(lineParts.Length >= 1) || !double.TryParse(lineParts[0], out result))
-            {
-                throw new FormatException();
-            }
-            doubleValue = result;
-        }
-
-        private static void READ(System.IO.TextReader textReader, ref double doubleValue1, ref double doubleValue2)
-        {
-            string line = textReader.ReadLine();
-            string[] lineParts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!(lineParts.Length >= 2) || !double.TryParse(lineParts[0], out doubleValue1) || !double.TryParse(lineParts[1], out doubleValue2))
-            {
-                throw new FormatException();
-            }
-        }
-
-        //----------------------------------------------------
-        //************************************************
-        //  SUBROUTINE READ THE DATA !
-        //------------------------------------------------
-        private static void READ_DATA()
-        {
-            //GeneralData GeneralData = new GeneralData();
-            //SolverData SolverData = new SolverData();
-            int i, j;
-
-            using (System.IO.FileStream fileStream = System.IO.File.Open("initial_data.inp", System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Read))
-            {
-                using (System.IO.StreamReader streamReader = new System.IO.StreamReader(fileStream))
-                {
-                    READ(streamReader, ref GeneralData.IMAX);               // The number of grid points in x direction
-                    READ(streamReader, ref GeneralData.JMAX);               // The number of the grid points in Y direction
-
-                    GeneralData.x = new double[GeneralData.IMAX];
-                    GeneralData.y = new double[GeneralData.JMAX];
-                    GeneralData.vell_i = new double[GeneralData.IMAX, GeneralData.JMAX];
-
-                    READ(streamReader, ref SolverData.Dturb);               // THE DIAMETER OF THE TURBIN
-                    READ(streamReader, ref SolverData.H);                   //  THE HEIGHT OF THE TURBINE
-                    READ(streamReader, ref SolverData.Ct);                  // TURBINE THRUST COEFFICIENT
-                    READ(streamReader, ref SolverData.Kwake);               // wake expand scalar
-                    READ(streamReader, ref SolverData.Uhub);                //m/s - VELOCITY AT THE HUB, WITHOUT THE INFLUENCE OF THE WIND TURBIN
-                    READ(streamReader, ref GeneralData.N_TURB);             //THE NUMBER OF THE TURBINE
-
-                    GeneralData.x_turb = new double[GeneralData.N_TURB];
-                    GeneralData.y_turb = new double[GeneralData.N_TURB];
-                    GeneralData.R_TURB = new double[GeneralData.N_TURB];
-                    GeneralData.WPOWER = new double[GeneralData.N_TURB];
-
-                    GeneralData.xc_turb = new System.Int32[GeneralData.N_TURB];
-                    GeneralData.yc_turb = new System.Int32[GeneralData.N_TURB];
-
-                    READ(streamReader, ref SolverData.rho);                         // THE DENSITY OF THE AIR 
-                    READ(streamReader, ref SolverData.dist);                        // the distance behind the turbine where the power is computed
-                    READ(streamReader, ref GeneralData.ang);                        // rotational angle of the axis: vellocity has the same direction as Ox
-                    READ(streamReader);
-                    READ(streamReader);
-                    for (i = 0; i <= GeneralData.N_TURB - 1; i++)
-                    {
-                        READ(streamReader, ref GeneralData.x_turb[i], ref GeneralData.y_turb[i]);   // pozition of the turbine
-                    }
-                    READ(streamReader);
-                }
-            }
-        }  // END SUBROUTINE READ DATA
 
 
         //--------------------------------------------------------------------
@@ -254,41 +144,41 @@ namespace WakeCode2
         //*****************************************************************
         // ORDER of THE TURBINE in function of x coordinate
         //_******************************************************************??? 
-        private static void ORDER()
+        private static void ORDER(GeneralData generalData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
             int i, j, k;
             double aa, bb;
 
-            for (i = 1; i <= GeneralData.N_TURB - 1; i++)
+            for (i = 1; i <= generalData.N_TURB - 1; i++)
             {
-                for (j = 0; j <= GeneralData.N_TURB - i - 1; j++)
+                for (j = 0; j <= generalData.N_TURB - i - 1; j++)
                 {
-                    if (GeneralData.x_turb[j] > GeneralData.x_turb[j + 1])
+                    if (generalData.x_turb[j] > generalData.x_turb[j + 1])
                     {
-                        aa = GeneralData.x_turb[j];
-                        bb = GeneralData.y_turb[j];
-                        GeneralData.x_turb[j] = GeneralData.x_turb[j + 1];
-                        GeneralData.y_turb[j] = GeneralData.y_turb[j + 1];
-                        GeneralData.x_turb[j + 1] = aa;
-                        GeneralData.y_turb[j + 1] = bb;
+                        aa = generalData.x_turb[j];
+                        bb = generalData.y_turb[j];
+                        generalData.x_turb[j] = generalData.x_turb[j + 1];
+                        generalData.y_turb[j] = generalData.y_turb[j + 1];
+                        generalData.x_turb[j + 1] = aa;
+                        generalData.y_turb[j + 1] = bb;
                     }
                 }
             }
 
             //for (j=1; j <= N_turb; j++) {
-            for (i = 0; i <= GeneralData.N_TURB - 1; i++)
+            for (i = 0; i <= generalData.N_TURB - 1; i++)
             {
-                for (k = i + 1; k <= GeneralData.N_TURB - 1; k++)
+                for (k = i + 1; k <= generalData.N_TURB - 1; k++)
                 {
-                    if (GeneralData.x_turb[i] == GeneralData.x_turb[k])
+                    if (generalData.x_turb[i] == generalData.x_turb[k])
                     {
-                        if (GeneralData.y_turb[i] > GeneralData.y_turb[k])
+                        if (generalData.y_turb[i] > generalData.y_turb[k])
                         {
-                            aa = GeneralData.y_turb[i];
-                            GeneralData.y_turb[i] = GeneralData.y_turb[k];
-                            GeneralData.y_turb[k] = aa;
+                            aa = generalData.y_turb[i];
+                            generalData.y_turb[i] = generalData.y_turb[k];
+                            generalData.y_turb[k] = aa;
                         }
                     }
                 }
@@ -307,7 +197,7 @@ namespace WakeCode2
         //************************************************************************
         // *                         SUBROUTINE  _DATA                        *
         //*********************************************************************** 
-        private static void WRITE_DATA()
+        private static void WRITE_DATA(SolverData solverData, GeneralData generalData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -319,20 +209,20 @@ namespace WakeCode2
             {
                 using (System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(fileStream))
                 {
-                    WRITE(streamWriter, GeneralData.IMAX, GeneralData.JMAX);
-                    for (j = 1; j <= GeneralData.JMAX; j++)
+                    WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
+                    for (j = 1; j <= generalData.JMAX; j++)
                     {
-                        for (i = 0; i <= GeneralData.IMAX - 1; i++)
+                        for (i = 0; i <= generalData.IMAX - 1; i++)
                         {
-                            WRITE(streamWriter, GeneralData.x[i]);
+                            WRITE(streamWriter, generalData.x[i]);
                         }
                     }
                     WRITE(streamWriter);
-                    for (j = 0; j <= GeneralData.JMAX - 1; j++)
+                    for (j = 0; j <= generalData.JMAX - 1; j++)
                     {
-                        for (i = 1; i <= GeneralData.IMAX; i++)
+                        for (i = 1; i <= generalData.IMAX; i++)
                         {
-                            WRITE(streamWriter, GeneralData.y[j]);
+                            WRITE(streamWriter, generalData.y[j]);
                         }
                     }
                 }
@@ -342,32 +232,32 @@ namespace WakeCode2
             {
                 using (System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(fileStream))
                 {
-                    WRITE(streamWriter, GeneralData.IMAX, GeneralData.JMAX);
+                    WRITE(streamWriter, generalData.IMAX, generalData.JMAX);
                     WRITE(streamWriter, "0.1   ", "  10  ", "  10000  ", "  0.1 ");
-                    for (j = 1; j <= GeneralData.JMAX; j++)
+                    for (j = 1; j <= generalData.JMAX; j++)
                     {
-                        for (i = 1; i <= GeneralData.IMAX; i++)
+                        for (i = 1; i <= generalData.IMAX; i++)
                         {
-                            WRITE(streamWriter, SolverData.rho);
+                            WRITE(streamWriter, solverData.Rho);
                         }
                     }
-                    for (j = 0; j <= GeneralData.JMAX - 1; j++)
+                    for (j = 0; j <= generalData.JMAX - 1; j++)
                     {
-                        for (i = 0; i <= GeneralData.IMAX - 1; i++)
+                        for (i = 0; i <= generalData.IMAX - 1; i++)
                         {
-                            WRITE(streamWriter, SolverData.rho * GeneralData.vell_i[i, j]);
+                            WRITE(streamWriter, solverData.Rho * generalData.vell_i[i, j]);
                         }
                     }
-                    for (j = 1; j <= GeneralData.JMAX; j++)
+                    for (j = 1; j <= generalData.JMAX; j++)
                     {
-                        for (i = 1; i <= GeneralData.IMAX; i++)
+                        for (i = 1; i <= generalData.IMAX; i++)
                         {
                             WRITE(streamWriter, 0);
                         }
                     }
-                    for (j = 1; j <= GeneralData.JMAX; j++)
+                    for (j = 1; j <= generalData.JMAX; j++)
                     {
-                        for (i = 1; i <= GeneralData.IMAX; i++)
+                        for (i = 1; i <= generalData.IMAX; i++)
                         {
                             WRITE(streamWriter, 0);
                         }
@@ -385,29 +275,29 @@ namespace WakeCode2
         //************************************************************************
         // *                         SUBROUTINE  _SHADOW AREA 
         //*********************************************************************** 
-        private static void COMPUTE_VELL()
+        private static void COMPUTE_VELL(SolverData solverData, GeneralData generalData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
             int I, J, K, Ni, nj, jj_max, jj_min, ii, nk;
-            double[] SHADOW = new double[GeneralData.N_TURB];
+            double[] SHADOW = new double[generalData.N_TURB];
             double DIJ, RR_I, ALPHA_I, ALPHA_K, LIJ;
             double PP, SS, ss0, RR_k, vv;
 
             double r0, x_dist, rr_max = 0, rrt, area = 0;
 
-            for (I = 0; I <= GeneralData.IMAX - 1; I++)
+            for (I = 0; I <= generalData.IMAX - 1; I++)
             {
-                for (J = 0; J <= GeneralData.JMAX - 1; J++)
+                for (J = 0; J <= generalData.JMAX - 1; J++)
                 {
-                    GeneralData.vell_i[I, J] = SolverData.Uhub;
+                    generalData.vell_i[I, J] = solverData.Uhub;
                 }
             }
 
-            r0 = 0.5 * SolverData.Dturb; // all the tubine have the same diameter
+            r0 = 0.5 * solverData.Dturb; // all the tubine have the same diameter
 
-            nk = 2 * (INT(SolverData.Dturb / GeneralData.dy));
-            for (K = 1; K <= GeneralData.N_TURB; K++)
+            nk = 2 * (INT(solverData.Dturb / generalData.dy));
+            for (K = 1; K <= generalData.N_TURB; K++)
             {
                 J = 0;
                 SS = 0.0;
@@ -415,15 +305,15 @@ namespace WakeCode2
 
                 for (I = 1; I <= K - 1; I = I + 1) // calculate the influence of the turbine i over the turbine k
                 {
-                    RR_I = r0 + SolverData.Kwake * (GeneralData.x[GeneralData.xc_turb[K - 1] - 1] - GeneralData.x[GeneralData.xc_turb[I - 1] - 1]);
-                    DIJ = Math.Abs(GeneralData.y_turb[I - 1] - GeneralData.y_turb[K - 1]);
-                    if (RR_I >= (r0 + DIJ) || DIJ <= GeneralData.dy)
+                    RR_I = r0 + solverData.Kwake * (generalData.x[generalData.xc_turb[K - 1] - 1] - generalData.x[generalData.xc_turb[I - 1] - 1]);
+                    DIJ = Math.Abs(generalData.y_turb[I - 1] - generalData.y_turb[K - 1]);
+                    if (RR_I >= (r0 + DIJ) || DIJ <= generalData.dy)
                     {
                         SS = SS + ((r0 * r0) / (RR_I * RR_I));
                     }
                     else
                     {
-                        if ((DIJ) < (RR_I + r0) && (DIJ) > GeneralData.dy)
+                        if ((DIJ) < (RR_I + r0) && (DIJ) > generalData.dy)
                         {
                             J = J + 1;
                             ALPHA_I = (RR_I * RR_I) + (DIJ * DIJ) - (r0 * r0);
@@ -445,28 +335,28 @@ namespace WakeCode2
                     }
                 }
 
-                for (ii = GeneralData.xc_turb[K - 1]; ii <= GeneralData.IMAX; ii++)
+                for (ii = generalData.xc_turb[K - 1]; ii <= generalData.IMAX; ii++)
                 {
-                    rrt = r0 + SolverData.Kwake * (GeneralData.x[ii - 1] - GeneralData.x[GeneralData.xc_turb[K - 1] - 1]);
+                    rrt = r0 + solverData.Kwake * (generalData.x[ii - 1] - generalData.x[generalData.xc_turb[K - 1] - 1]);
                     rr_max = Math.Max(rrt, rr_max);
-                    nj = (INT(rrt / GeneralData.dy));
-                    jj_min = Math.Max(1, GeneralData.yc_turb[K - 1] - nj);
-                    jj_max = Math.Min(GeneralData.JMAX, GeneralData.yc_turb[K - 1] + nj);
+                    nj = (INT(rrt / generalData.dy));
+                    jj_min = Math.Max(1, generalData.yc_turb[K - 1] - nj);
+                    jj_max = Math.Min(generalData.JMAX, generalData.yc_turb[K - 1] + nj);
 
                     for (J = jj_min; J <= jj_max; J++)
                     {
-                        if (((-GeneralData.vell_i[ii - 1, J - 1] + SolverData.Uhub) > 0) && (ii > GeneralData.xc_turb[K - 1] + nk))
+                        if (((-generalData.vell_i[ii - 1, J - 1] + solverData.Uhub) > 0) && (ii > generalData.xc_turb[K - 1] + nk))
                         {
-                            vv = GeneralData.vell_i[ii - 1, J - 1];
-                            GeneralData.vell_i[ii - 1, J - 1] = SolverData.Uhub + SolverData.Uhub * (Math.Sqrt(1 - SolverData.Ct) - 1) * ((r0 * r0) / (rrt * rrt));
-                            GeneralData.vell_i[ii - 1, J - 1] = GeneralData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - SolverData.Ct)) * SS);
+                            vv = generalData.vell_i[ii - 1, J - 1];
+                            generalData.vell_i[ii - 1, J - 1] = solverData.Uhub + solverData.Uhub * (Math.Sqrt(1 - solverData.Ct) - 1) * ((r0 * r0) / (rrt * rrt));
+                            generalData.vell_i[ii - 1, J - 1] = generalData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - solverData.Ct)) * SS);
                             //vell_i(ii,j)=(vell_i(ii,j)+0.15*vv)/1.15;
-                            GeneralData.vell_i[ii - 1, J - 1] = Math.Min(vv, GeneralData.vell_i[ii - 1, J - 1]);
+                            generalData.vell_i[ii - 1, J - 1] = Math.Min(vv, generalData.vell_i[ii - 1, J - 1]);
                         }
                         else
                         {
-                            GeneralData.vell_i[ii - 1, J - 1] = SolverData.Uhub + SolverData.Uhub * (Math.Sqrt(1 - SolverData.Ct) - 1) * (r0 / rrt) * (r0 / rrt);
-                            GeneralData.vell_i[ii - 1, J - 1] = GeneralData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - SolverData.Ct)) * SS);
+                            generalData.vell_i[ii - 1, J - 1] = solverData.Uhub + solverData.Uhub * (Math.Sqrt(1 - solverData.Ct) - 1) * (r0 / rrt) * (r0 / rrt);
+                            generalData.vell_i[ii - 1, J - 1] = generalData.vell_i[ii - 1, J - 1] * (1 - (1 - Math.Sqrt(1 - solverData.Ct)) * SS);
                         }
                     }
                 }
@@ -480,36 +370,36 @@ namespace WakeCode2
         //************************************************************************
         // *       SUBROUTINE  compute the power at the distance dist behind the WT
         //*********************************************************************** 
-        private static void COMPUTE_WPower()
+        private static void COMPUTE_WPower(SolverData solverData, GeneralData generalData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
             int I, J, K, Ni, nj, jj_max, jj_min, ii, JJ, nd, nk, mm;
-            double[] SHADOW = new double[GeneralData.N_TURB];
+            double[] SHADOW = new double[generalData.N_TURB];
             double DIJ, RR_I, ALPHA_I, ALPHA_K, LIJ;
             double PP, SS, ss0, RR_k, vv, SPOWER, vv1, vv2;
-            double[] v_power = new double[GeneralData.N_TURB];
+            double[] v_power = new double[generalData.N_TURB];
 
             double r0, x_dist, rr_max, rrt, area = 0;
 
-            r0 = 0.5 * SolverData.Dturb; // all the tubine have the same diameter
+            r0 = 0.5 * solverData.Dturb; // all the tubine have the same diameter
 
             ss0 = (pi * r0 * r0);
-            I = (int)Math.Truncate(SolverData.dist / GeneralData.dx);
+            I = (int)Math.Truncate(solverData.dist / generalData.dx);
             nd = Math.Max(1, I);
 
-            for (K = 1; K <= GeneralData.N_TURB; K++)
+            for (K = 1; K <= generalData.N_TURB; K++)
             {
                 J = 0;
                 SS = 0.0;
-                nk = Math.Max(1, GeneralData.xc_turb[K - 1] - nd);
-                vv1 = GeneralData.vell_i[nk - 1, GeneralData.yc_turb[K - 1] - 1];
-                GeneralData.WPOWER[K - 1] = 0.0;
+                nk = Math.Max(1, generalData.xc_turb[K - 1] - nd);
+                vv1 = generalData.vell_i[nk - 1, generalData.yc_turb[K - 1] - 1];
+                generalData.WPOWER[K - 1] = 0.0;
                 vv2 = 0.0;
                 for (I = K - 1; I >= 1; I = I - 1) // calculate the influence of the turbine i over the turbine k
                 {
-                    RR_I = r0 + SolverData.Kwake * (GeneralData.x[nk - 1] - GeneralData.x[GeneralData.xc_turb[I - 1] - 1]);
-                    DIJ = Math.Abs(GeneralData.y_turb[I - 1] - GeneralData.y_turb[K - 1]);
+                    RR_I = r0 + solverData.Kwake * (generalData.x[nk - 1] - generalData.x[generalData.xc_turb[I - 1] - 1]);
+                    DIJ = Math.Abs(generalData.y_turb[I - 1] - generalData.y_turb[K - 1]);
 
                     if (((DIJ) < (RR_I + r0)) && (RR_I <= (r0 + DIJ)))
                     {
@@ -528,21 +418,21 @@ namespace WakeCode2
                         SS = SS + SHADOW[J - 1];
                         if (SS < ss0)
                         {
-                            if (GeneralData.y_turb[K - 1] > GeneralData.y_turb[I - 1])
+                            if (generalData.y_turb[K - 1] > generalData.y_turb[I - 1])
                             {
-                                mm = (INT(RR_I / GeneralData.dy));
-                                jj_max = Math.Min(GeneralData.JMAX, GeneralData.yc_turb[I - 1] + mm + 1);
-                                jj_min = Math.Max(1, GeneralData.yc_turb[I - 1] + mm - 2);
-                                vv1 = GeneralData.vell_i[nk - 1, jj_max - 1];
-                                v_power[J - 1] = GeneralData.vell_i[nk - 1, jj_min - 1];
+                                mm = (INT(RR_I / generalData.dy));
+                                jj_max = Math.Min(generalData.JMAX, generalData.yc_turb[I - 1] + mm + 1);
+                                jj_min = Math.Max(1, generalData.yc_turb[I - 1] + mm - 2);
+                                vv1 = generalData.vell_i[nk - 1, jj_max - 1];
+                                v_power[J - 1] = generalData.vell_i[nk - 1, jj_min - 1];
                             }
                             else
                             {
-                                mm = (INT(RR_I / GeneralData.dy));
-                                jj_max = Math.Min(GeneralData.JMAX, GeneralData.yc_turb[I - 1] + mm + 1);
-                                jj_min = Math.Max(1, GeneralData.yc_turb[I - 1] + mm - 2);
-                                vv1 = GeneralData.vell_i[nk - 1, jj_min - 1];
-                                v_power[J - 1] = GeneralData.vell_i[nk - 1, jj_max - 1];
+                                mm = (INT(RR_I / generalData.dy));
+                                jj_max = Math.Min(generalData.JMAX, generalData.yc_turb[I - 1] + mm + 1);
+                                jj_min = Math.Max(1, generalData.yc_turb[I - 1] + mm - 2);
+                                vv1 = generalData.vell_i[nk - 1, jj_min - 1];
+                                v_power[J - 1] = generalData.vell_i[nk - 1, jj_max - 1];
                             }
                         }
                         else
@@ -561,7 +451,7 @@ namespace WakeCode2
                 }
                 vv2 = (vv2 + vv1 * (ss0 - SS)) / ss0;
 
-                GeneralData.WPOWER[K - 1] = 0.5 * SolverData.rho * (Math.Pow(vv2, 3)) * ss0 * SolverData.Cp;
+                generalData.WPOWER[K - 1] = 0.5 * solverData.Rho * (Math.Pow(vv2, 3)) * ss0 * solverData.Cp;
             }
         }   // subroutine that compute the velocity in front of the wind turbine
 
@@ -570,7 +460,7 @@ namespace WakeCode2
         //************************************************************************
         // *                         SUBROUTINE  _DATA Power                       *
         //*********************************************************************** 
-        private static void WRITE_DATA_power()
+        private static void WRITE_DATA_power(GeneralData generalData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -583,9 +473,9 @@ namespace WakeCode2
                 using (System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(fileStream))
                 {
                     WRITE(streamWriter, "   Turbine Number(m)   ", "Turbine Location-X(m)   ", "Turbine Location-Y(m)    ", "POWER(W)");
-                    for (i = 1; i <= GeneralData.N_TURB; i++)
+                    for (i = 1; i <= generalData.N_TURB; i++)
                     {
-                        WRITE(streamWriter, i, GeneralData.x_turb[i - 1], GeneralData.y_turb[i - 1], GeneralData.WPOWER[i - 1]);
+                        WRITE(streamWriter, i, generalData.x_turb[i - 1], generalData.y_turb[i - 1], generalData.WPOWER[i - 1]);
                     }
                 }
             }
