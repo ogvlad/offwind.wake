@@ -5,24 +5,44 @@ using System.Text;
 
 namespace WakeCode
 {
-    internal static class GeneralData
+    internal class GeneralData
     {
-        public static System.Int32 N_TURB, IMAX, JMAX;
-        public static double dx, dy, pi, xmax, ymax, ymin, xmin, ang;
+        public static System.Int32 N_TURB;
+        public static System.Int32 IMAX;
+        public static System.Int32 JMAX;
+        public static double dx;
+        public static double dy;
+        public static double pi;
+        public static double xmax;
+        public static double ymax;
+        public static double ymin;
+        public static double xmin;
+        public static double ang;
 
-        public static double[] x, y;
+        public static double[] x;
+        public static double[] y;
         public static double[,] vell_i;
-        public static double[] x_turb, y_turb, R_TURB, WPOWER;     // location of the turbine
-        public static System.Int32[] xc_turb, yc_turb;
+        public static double[] x_turb;     // location of the turbine
+        public static double[] y_turb;     // location of the turbine
+        public static double[] R_TURB;     // location of the turbine
+        public static double[] WPOWER;     // location of the turbine
+        public static Int32[] xc_turb;
+        public static Int32[] yc_turb;
     }
 
-    internal static class SolverData
+    internal class SolverData
     {
-        //USE GeneralData
-        public static double Ct, Dturb, Kwake, H, Uhub, Dwake;
-        public static double rho, Cp, dist;
+        public static double Ct;
+        public static double Dturb;
+        public static double Kwake;
+        public static double H;
+        public static double Uhub;
+        public static double Dwake;
+        public static double Rho, Cp, dist;
 
-        public static float[,] V = new float[1000, 1000], Darea = new float[1000, 1000], Darea_D = new float[1000, 1000];
+        public static float[,] V = new float[1000, 1000];
+        public static float[,] Darea = new float[1000, 1000];
+        public static float[,] Darea_D = new float[1000, 1000];
     }
 
     static class Program
@@ -171,7 +191,7 @@ namespace WakeCode
                     GeneralData.xc_turb = new System.Int32[GeneralData.N_TURB];
                     GeneralData.yc_turb = new System.Int32[GeneralData.N_TURB];
 
-                    READ(streamReader, ref SolverData.rho);                         // THE DENSITY OF THE AIR 
+                    READ(streamReader, ref SolverData.Rho);                         // THE DENSITY OF THE AIR 
                     READ(streamReader, ref SolverData.dist);                        // the distance behind the turbine where the power is computed
                     READ(streamReader, ref GeneralData.ang);                        // rotational angle of the axis: vellocity has the same direction as Ox
                     READ(streamReader);
@@ -348,14 +368,14 @@ namespace WakeCode
                     {
                         for (i = 1; i <= GeneralData.IMAX; i++)
                         {
-                            WRITE(streamWriter, SolverData.rho);
+                            WRITE(streamWriter, SolverData.Rho);
                         }
                     }
                     for (j = 0; j <= GeneralData.JMAX - 1; j++)
                     {
                         for (i = 0; i <= GeneralData.IMAX - 1; i++)
                         {
-                            WRITE(streamWriter, SolverData.rho * GeneralData.vell_i[i, j]);
+                            WRITE(streamWriter, SolverData.Rho * GeneralData.vell_i[i, j]);
                         }
                     }
                     for (j = 1; j <= GeneralData.JMAX; j++)
@@ -561,7 +581,7 @@ namespace WakeCode
                 }
                 vv2 = (vv2 + vv1 * (ss0 - SS)) / ss0;
 
-                GeneralData.WPOWER[K - 1] = 0.5 * SolverData.rho * (Math.Pow(vv2, 3)) * ss0 * SolverData.Cp;
+                GeneralData.WPOWER[K - 1] = 0.5 * SolverData.Rho * (Math.Pow(vv2, 3)) * ss0 * SolverData.Cp;
             }
         }   // subroutine that compute the velocity in front of the wind turbine
 
