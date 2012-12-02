@@ -33,7 +33,7 @@ namespace WakeCode
     public class SolverData
     {
         public double Ct;
-        public static double Dturb;
+        public double Dturb;
         public static double Kwake;
         public static double H;
         public static double Uhub;
@@ -79,18 +79,18 @@ namespace WakeCode
 
             ppp = 5.0;
 
-            DOMAIN_PT(ref GeneralData.x, ref GeneralData.IMAX, ref GeneralData.dx, ref SolverData.Dturb, ref GeneralData.x_turb, ref GeneralData.N_TURB, ref GeneralData.xmax, ref GeneralData.xmin, ref ppp);
+            DOMAIN_PT(ref GeneralData.x, ref GeneralData.IMAX, ref GeneralData.dx, ref solverData.Dturb, ref GeneralData.x_turb, ref GeneralData.N_TURB, ref GeneralData.xmax, ref GeneralData.xmin, ref ppp);
 
             ppp = 2.0;
 
-            DOMAIN_PT(ref GeneralData.y, ref GeneralData.JMAX, ref GeneralData.dy, ref SolverData.Dturb, ref GeneralData.y_turb, ref GeneralData.N_TURB, ref GeneralData.ymax, ref GeneralData.ymin, ref ppp);
+            DOMAIN_PT(ref GeneralData.y, ref GeneralData.JMAX, ref GeneralData.dy, ref solverData.Dturb, ref GeneralData.y_turb, ref GeneralData.N_TURB, ref GeneralData.ymax, ref GeneralData.ymin, ref ppp);
             Turb_centr_coord(ref GeneralData.N_TURB, ref GeneralData.IMAX, ref GeneralData.x, ref GeneralData.x_turb, ref GeneralData.xc_turb);
             Turb_centr_coord(ref GeneralData.N_TURB, ref GeneralData.JMAX, ref GeneralData.y, ref GeneralData.y_turb, ref GeneralData.yc_turb);
             COMPUTE_VELL(solverData);
 
             WRITE_DATA();
 
-            COMPUTE_WPower();
+            COMPUTE_WPower(solverData);
             WRITE_DATA_power();
         }
 
@@ -177,7 +177,7 @@ namespace WakeCode
                     GeneralData.y = new double[GeneralData.JMAX];
                     GeneralData.vell_i = new double[GeneralData.IMAX, GeneralData.JMAX];
 
-                    READ(streamReader, ref SolverData.Dturb);               // THE DIAMETER OF THE TURBIN
+                    READ(streamReader, ref solverData.Dturb);               // THE DIAMETER OF THE TURBIN
                     READ(streamReader, ref SolverData.H);                   //  THE HEIGHT OF THE TURBINE
                     READ(streamReader, ref solverData.Ct);                  // TURBINE THRUST COEFFICIENT
                     READ(streamReader, ref SolverData.Kwake);               // wake expand scalar
@@ -425,9 +425,9 @@ namespace WakeCode
                 }
             }
 
-            r0 = 0.5 * SolverData.Dturb; // all the tubine have the same diameter
+            r0 = 0.5 * solverData.Dturb; // all the tubine have the same diameter
 
-            nk = 2 * (INT(SolverData.Dturb / GeneralData.dy));
+            nk = 2 * (INT(solverData.Dturb / GeneralData.dy));
             for (K = 1; K <= GeneralData.N_TURB; K++)
             {
                 J = 0;
@@ -501,7 +501,7 @@ namespace WakeCode
         //************************************************************************
         // *       SUBROUTINE  compute the power at the distance dist behind the WT
         //*********************************************************************** 
-        private static void COMPUTE_WPower()
+        private static void COMPUTE_WPower(SolverData solverData)
         {
             //GeneralData GeneralData = new GeneralData();
             //SolverData SolverData = new SolverData();
@@ -513,7 +513,7 @@ namespace WakeCode
 
             double r0, x_dist, rr_max, rrt, area = 0;
 
-            r0 = 0.5 * SolverData.Dturb; // all the tubine have the same diameter
+            r0 = 0.5 * solverData.Dturb; // all the tubine have the same diameter
 
             ss0 = (pi * r0 * r0);
             I = (int)Math.Truncate(SolverData.dist / GeneralData.dx);
