@@ -91,12 +91,14 @@ namespace WakeCode
 
         private void WRITE(TextWriter textWriter, params object[] values)
         {
-            string line = values.Aggregate("",
-                                           (partialLine, value) => partialLine + " " + value,
-                                           partialLine => (partialLine.Length >= 1
-                                                               ? partialLine.Substring(1)
-                                                               : partialLine));
-            textWriter.WriteLine(line);
+            var n = 0;
+            foreach (var value in values)
+            {
+                if (n > 0) textWriter.Write(" ");
+                textWriter.Write(value);
+                n++;
+            }
+            textWriter.WriteLine();
         }
     }
 }
