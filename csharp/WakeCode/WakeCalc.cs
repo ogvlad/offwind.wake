@@ -6,6 +6,18 @@ namespace WakeCode
     {
         private const double pi = 3.1415926535897;
 
+        public void Initialize(GeneralData generalData, CalcData calcData)
+        {
+            calcData.x = new double[generalData.GridPointsX];
+            calcData.y = new double[generalData.GridPointsY];
+            calcData.vell_i = new double[generalData.GridPointsX, generalData.GridPointsY];
+            calcData.R_TURB = new double[generalData.TurbinesAmount];
+            calcData.WPOWER = new double[generalData.TurbinesAmount];
+
+            calcData.xc_turb = new Int32[generalData.TurbinesAmount];
+            calcData.yc_turb = new Int32[generalData.TurbinesAmount];
+        }
+
         public void Run(GeneralData generalData, CalcData calcData)
         {
             //************************************************************************

@@ -21,16 +21,7 @@ namespace WakeCode
 
             dataReader.Read(generalData, dir);
 
-
-            calcData.x = new double[generalData.GridPointsX];
-            calcData.y = new double[generalData.GridPointsY];
-            calcData.vell_i = new double[generalData.GridPointsX, generalData.GridPointsY];
-            calcData.R_TURB = new double[generalData.TurbinesAmount];
-            calcData.WPOWER = new double[generalData.TurbinesAmount];
-
-            calcData.xc_turb = new Int32[generalData.TurbinesAmount];
-            calcData.yc_turb = new Int32[generalData.TurbinesAmount];
-
+            calc.Initialize(generalData, calcData);
             calc.Run(generalData, calcData);
 
             dataWriter.Write(generalData, calcData, dir);
