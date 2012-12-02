@@ -4,6 +4,13 @@ namespace WakeCode
 {
     public class CalcData
     {
+        public double dx;
+        public double dy;
+        public double pi;
+        public double xmax;
+        public double ymax;
+        public double ymin;
+        public double xmin;
 
         public double[] x;
         public double[] y;
